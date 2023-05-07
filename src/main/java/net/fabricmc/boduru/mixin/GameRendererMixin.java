@@ -24,10 +24,51 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
+    //@Inject(at = @At("HEAD"), method = "render")
+    private void renderHead(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+        if (!WaterShaderMod.renderPass.doDrawWater()) {
+            MinecraftClient client = MinecraftClient.getInstance();
+
+            Entity camera = client.player;
+            if (camera != null) {
+                Vec3d position = camera.getPos();
+                float waterHeight = WaterShaderMod.clipPlane.getHeight();
+
+//                double d = 2 * (position.getY() - waterHeight);
+//                camera.setPos(position.getX(), 100, position.getZ());
+
+//                Camera cameragr = client.gameRenderer.getCamera();
+//                camera.update(client.world, client.getCameraEntity() == null ? client.player : client.getCameraEntity(), !client.options.getPerspective().isFirstPerson(), client.options.getPerspective().isFrontView(), tickDelta);
+//                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
+//                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0f));
+            }
+        }
+    }
+
+    //@Inject(at = @At("TAIL"), method = "render")
+    private void renderTail(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+        if (!WaterShaderMod.renderPass.doDrawWater()) {
+            MinecraftClient client = MinecraftClient.getInstance();
+
+            Entity camera = client.player;
+            if (camera != null) {
+                Vec3d position = camera.getPos();
+                float waterHeight = WaterShaderMod.clipPlane.getHeight();
+
+                double d = 2 * (position.getY() - waterHeight);
+//                camera.setPos(position.getX(), 90, position.getZ());
+
+                Camera cameragr = client.gameRenderer.getCamera();
+                ((CameraMixin) cameragr).invokeSetPos(position.getX(), 90, position.getZ());
+            }
+        }
+    }
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"))
     private void renderWorld(GameRenderer instance, float tickDelta, long limitTime, MatrixStack matrices) {
@@ -51,7 +92,7 @@ public abstract class GameRendererMixin {
             // Setup reflection texture render pass
             double d = 2 * (position.getY() - waterHeight);
 //            ((CameraMixin) camera).invokeMoveBy(0, -d, 0);
-            camera.setPos(position.getX(), position.getY() - d, position.getZ());
+//            camera.setPos(position.getX(), position.getY() - d, position.getZ());
 //            camera.setPitch(-pitch);
 
             // Set clipping plane to cull everything below the water
@@ -60,7 +101,7 @@ public abstract class GameRendererMixin {
 
             // Render reflection texture
             WaterShaderMod.renderPass.setDrawWater(false);
-            instance.renderWorld(tickDelta, limitTime, new MatrixStack());
+            instance.renderWorld(tickDelta, limitTime, matrices);
 
 //            Framebuffers.CopyFrameBufferTexture(width, height, 0, reflectionFBO);
 //            Framebuffers.CopyFrameBufferTexture(width, height, reflectionFBO, minecraftFBO);
@@ -81,7 +122,7 @@ public abstract class GameRendererMixin {
 //            // Restore pitch and position
 //            ((CameraMixin) camera).invokeSetPos(position.getX(), position.getY(), position.getZ());
 //            ((CameraMixin) camera).invokeMoveBy(0, d, 0);
-            camera.setPos(position.getX(), position.getY(), position.getZ());
+//            camera.setPos(position.getX(), position.getY(), position.getZ());
 //            camera.setPitch(pitch);
 //
 //            // Set clipping plane to cull nothing

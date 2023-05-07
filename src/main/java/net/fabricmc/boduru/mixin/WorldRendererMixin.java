@@ -6,6 +6,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -35,29 +37,28 @@ public class WorldRendererMixin {
     //@Inject(at = @At("HEAD"), method = "render")
     private void renderHead(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
         if (!WaterShaderMod.renderPass.doDrawWater()) {
-            if (this.entityOutlinesFramebuffer != null) {
-                this.entityOutlinesFramebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
-            }
+            MinecraftClient client = MinecraftClient.getInstance();
+            Entity cameraclient = client.player;
+            Vec3d position = cameraclient.getPos();
+            cameraclient.setPos(position.x, position.y - 10, position.z);
 
-            if (this.entityFramebuffer != null) {
-                this.entityFramebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
-            }
+            float waterHeight = WaterShaderMod.clipPlane.getHeight();
+            double d = 2 * (position.getY() - waterHeight);
+            ((CameraMixin) camera).invokeSetPos(position.x, position.y, position.z);
+        }
+    }
 
-            if (this.particlesFramebuffer != null) {
-                this.particlesFramebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
-            }
+    //@Inject(at = @At("TAIL"), method = "render")
+    private void renderTail(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
+        if (!WaterShaderMod.renderPass.doDrawWater()) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            Entity cameraclient = client.player;
+            Vec3d position = cameraclient.getPos();
+            cameraclient.setPos(position.x, position.y + 10, position.z);
 
-            if (this.weatherFramebuffer != null) {
-                this.weatherFramebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
-            }
-
-            if (this.translucentFramebuffer != null) {
-                this.translucentFramebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
-            }
-
-            if (this.cloudsFramebuffer != null) {
-                this.cloudsFramebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
-            }
+            float waterHeight = WaterShaderMod.clipPlane.getHeight();
+            double d = 2 * (position.getY() - waterHeight);
+            ((CameraMixin) camera).invokeSetPos(position.x, position.y, position.z);
         }
     }
 //
