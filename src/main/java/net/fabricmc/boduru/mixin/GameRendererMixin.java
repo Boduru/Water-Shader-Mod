@@ -84,28 +84,13 @@ public abstract class GameRendererMixin {
         float waterHeight = WaterShaderMod.clipPlane.getHeight();
 
         if (client.player != null) {
-            Entity camera = client.player;
-//            Camera camera = client.gameRenderer.getCamera();
-            Vec3d position = camera.getPos();
-            float pitch = camera.getPitch();
-
-            // Setup reflection texture render pass
-            double d = 2 * (position.getY() - waterHeight);
-//            ((CameraMixin) camera).invokeMoveBy(0, -d, 0);
-//            camera.setPos(position.getX(), position.getY() - d, position.getZ());
-//            camera.setPitch(-pitch);
-
             // Set clipping plane to cull everything below the water
             Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
-            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
+            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, instance.getCamera(), plane);
 
             // Render reflection texture
             WaterShaderMod.renderPass.setDrawWater(false);
             instance.renderWorld(tickDelta, limitTime, matrices);
-
-//            Framebuffers.CopyFrameBufferTexture(width, height, 0, reflectionFBO);
-//            Framebuffers.CopyFrameBufferTexture(width, height, reflectionFBO, minecraftFBO);
-//            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
             if (Framebuffers.frameCount % 100 == 0) {
 //                Framebuffers.CopyFrameBufferTexture(width, height, 0, reflectionFBO);

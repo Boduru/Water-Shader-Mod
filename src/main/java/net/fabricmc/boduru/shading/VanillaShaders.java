@@ -2,6 +2,7 @@ package net.fabricmc.boduru.shading;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -72,7 +73,22 @@ public class VanillaShaders {
         GL20.glUseProgram(0);
     }
 
-    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Entity camera, Vector4f plane) {
+//    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Entity camera, Vector4f plane) {
+//        // Calculate Inverse View Matrix
+//        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
+//        Matrix4f inverseViewMatrix = viewMatrix.invert();
+//
+//        for (String shader : terrainShaders) {
+//            // Inverse View Matrix
+//            ShaderProgram sp = client.gameRenderer.getProgram(shader);
+//            setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
+//
+//            // Clip Plane
+//            setVector4f(sp.getGlRef(), "plane", plane);
+//        }
+//    }
+
+    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Camera camera, Vector4f plane) {
         // Calculate Inverse View Matrix
         Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
         Matrix4f inverseViewMatrix = viewMatrix.invert();

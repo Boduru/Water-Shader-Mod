@@ -34,40 +34,37 @@ public class WorldRendererMixin {
     @Shadow
     private Framebuffer cloudsFramebuffer;
 
-    //@Inject(at = @At("HEAD"), method = "render")
+    @Inject(at = @At("HEAD"), method = "render")
     private void renderHead(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
         if (!WaterShaderMod.renderPass.doDrawWater()) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            Entity cameraclient = client.player;
-            Vec3d position = cameraclient.getPos();
-            cameraclient.setPos(position.x, position.y - 10, position.z);
+//            MinecraftClient client = MinecraftClient.getInstance();
+//            Entity cameraclient = client.player;
+//            Vec3d position = cameraclient.getPos();
+//            cameraclient.setPos(position.x, position.y - 10, position.z);
+
+            Vec3d position = camera.getPos();
 
             float waterHeight = WaterShaderMod.clipPlane.getHeight();
             double d = 2 * (position.getY() - waterHeight);
-            ((CameraMixin) camera).invokeSetPos(position.x, position.y, position.z);
+            ((CameraMixin) camera).invokeSetPos(position.x, position.y - 30, position.z);
         }
     }
 
-    //@Inject(at = @At("TAIL"), method = "render")
+    @Inject(at = @At("TAIL"), method = "render")
     private void renderTail(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
         if (!WaterShaderMod.renderPass.doDrawWater()) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            Entity cameraclient = client.player;
-            Vec3d position = cameraclient.getPos();
-            cameraclient.setPos(position.x, position.y + 10, position.z);
+//            MinecraftClient client = MinecraftClient.getInstance();
+//            Entity cameraclient = client.player;
+//            Vec3d position = cameraclient.getPos();
+//            cameraclient.setPos(position.x, position.y + 10, position.z);
+
+            Vec3d position = camera.getPos();
 
             float waterHeight = WaterShaderMod.clipPlane.getHeight();
             double d = 2 * (position.getY() - waterHeight);
-            ((CameraMixin) camera).invokeSetPos(position.x, position.y, position.z);
+            ((CameraMixin) camera).invokeSetPos(position.x, position.y + 30, position.z);
         }
     }
-//
-//    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;getFramebuffer()Lnet/minecraft/client/gl/Framebuffer;", shift = At.Shift.AFTER), method = "render")
-//    private void render2(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
-//        if (!WaterShaderMod.renderPass.doDrawWater()) {
-//            WaterShaderMod.framebuffers.bindReflectionFrameBuffer();
-//        }
-//    }
 
     @Inject(at = @At("TAIL"), method = "render")
     private void render(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
