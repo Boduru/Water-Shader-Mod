@@ -1,0 +1,19 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "net.fabricmc.boduru.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+	],
+	"client": [
+		"MinecraftClientMixin",
+		"GameRendererMixin",
+		"WorldRendererMixin",
+		"TitleScreenMixin",
+		"ShaderStageMixin",
+		"CameraMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

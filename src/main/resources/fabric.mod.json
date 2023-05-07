@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "water_shader",
+  "version": "${version}",
+
+  "name": "Water Shader Mod",
+  "description": "Enhance the water in Minecraft",
+  "authors": [
+    "Boduru"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/water_shader/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.fabricmc.boduru.main.WaterShaderMod"
+    ]
+  },
+  "mixins": [
+    "water_shader.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.14.17",
+    "fabric-api": "*",
+    "minecraft": "~1.19.4",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
