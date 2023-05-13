@@ -88,7 +88,22 @@ public class VanillaShaders {
 //        }
 //    }
 
-    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Camera camera, Vector4f plane) {
+//    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Camera camera, Vector4f plane) {
+//        // Calculate Inverse View Matrix
+//        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
+//        Matrix4f inverseViewMatrix = viewMatrix.invert();
+//
+//        for (String shader : terrainShaders) {
+//            // Inverse View Matrix
+//            ShaderProgram sp = client.gameRenderer.getProgram(shader);
+//            setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
+//
+//            // Clip Plane
+//            setVector4f(sp.getGlRef(), "plane", plane);
+//        }
+//    }
+
+    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Entity camera, Vector4f plane) {
         // Calculate Inverse View Matrix
         Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
         Matrix4f inverseViewMatrix = viewMatrix.invert();

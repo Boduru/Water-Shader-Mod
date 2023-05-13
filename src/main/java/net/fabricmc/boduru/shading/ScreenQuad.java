@@ -1,6 +1,7 @@
 package net.fabricmc.boduru.shading;
 
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL20;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -69,54 +70,52 @@ public class ScreenQuad {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements, GL_STATIC_DRAW);
     }
 
-    public void render(int id) {
+    public void render(int worldTexture, int reflectionTexture, int refractionTexture) {
         shader.useProgram();
 
-        // Use VAO
         glBindVertexArray(vao);
-
-        // Use VBO
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-        // Use EBO
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 
-        // Use shader
-        shader.useProgram();
+//        glDisable(GL_CULL_FACE);
 
-        // Activate texture
+        int worldTexLoc = GL20.glGetUniformLocation(shader.getShaderProgram(), "worldTexture");
+        int reflectionTexLoc = GL20.glGetUniformLocation(shader.getShaderProgram(), "reflectionTexture");
+
+        GL20.glUniform1i(worldTexLoc, 0);
+        GL20.glUniform1i(reflectionTexLoc, 1);
+
+        // Minecraft viewport textures
         glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, reflectionTexture);
 
-        // Bind the texture
-        glBindTexture(GL_TEXTURE_2D, id);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, reflectionTexture);
+//
+//        glActiveTexture(GL_TEXTURE2);
+//        glBindTexture(GL_TEXTURE_2D, refractionTexture);
+//        uniformLocation = GL20.glGetUniformLocation(shader.getShaderProgram(), "refractionTexture");
+//        GL20.glUniform1i(uniformLocation, 2);
 
         // Draw the triangle
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // Stop using shader
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
         shader.stopProgram();
 
-        // Stop using the EBO
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        // Stop using the VBO
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        // Stop using the VAO
-        glBindVertexArray(0);
+//        glEnable(GL_CULL_FACE);
     }
 
     public void destroy() {
         // Delete the shader
         shader.deleteShaderProgram();
 
-        // Delete the VBO
         glDeleteBuffers(vbo);
-
-        // Delete the EBO
         glDeleteBuffers(ebo);
-
-        // Delete the VAO
         glDeleteVertexArrays(vao);
     }
 }

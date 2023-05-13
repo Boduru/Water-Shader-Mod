@@ -29,6 +29,10 @@ public class Framebuffers {
     private int refractionTexture;
     private int refractionDepthTexture;
 
+    private int worldFrameBuffer;
+    private int worldTexture;
+    private int worldDepthBuffer;
+
     public void bindReflectionFrameBuffer() {
         bindFrameBuffer(reflectionFrameBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
     }
@@ -64,6 +68,25 @@ public class Framebuffers {
 
     public int getRefractionColorBuffer() {
         return refractionTexture;
+    }
+
+    public int getWorldFrameBuffer() {
+        return worldFrameBuffer;
+    }
+
+    public int getWorldColorBuffer() {
+        return worldTexture;
+    }
+
+    public void initializeWorldFrameBuffer(int displayWidth, int displayHeight) {
+        worldFrameBuffer = createFrameBuffer();
+        worldTexture = createTextureAttachment(REFLECTION_WIDTH, REFLECTION_HEIGHT);
+        worldDepthBuffer = createDepthBufferAttachment(REFLECTION_WIDTH, REFLECTION_HEIGHT);
+
+        final boolean complete = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) == GL30.GL_FRAMEBUFFER_COMPLETE;
+        System.out.println("World Framebuffer complete: " + complete);
+
+        unbindCurrentFrameBuffer(displayWidth, displayHeight);
     }
 
     public void initializeReflectionFrameBuffer(int displayWidth, int displayHeight) {
@@ -194,5 +217,8 @@ public class Framebuffers {
         GL30.glDeleteFramebuffers(refractionFrameBuffer);
         GL11.glDeleteTextures(refractionTexture);
         GL11.glDeleteTextures(refractionDepthTexture);
+
+        GL30.glDeleteFramebuffers(worldFrameBuffer);
+        GL11.glDeleteTextures(worldTexture);
     }
 }

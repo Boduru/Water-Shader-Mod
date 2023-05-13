@@ -8,6 +8,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Camera.class)
 public interface CameraMixin {
+    @Accessor("pitch")
+    void setPitch(float pitch);
+
     @Invoker
     void invokeSetRotation(float pitch, float yaw);
 

@@ -147,6 +147,10 @@ public class Shader {
         glUseProgram(0);
     }
 
+    public int getShaderProgram() {
+        return shaderProgram;
+    }
+
     public static String readFile(String filepath) {
         Path filePath = Path.of(filepath);
         String content = "";

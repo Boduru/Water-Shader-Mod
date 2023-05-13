@@ -17,6 +17,7 @@ public class WaterShaderMod implements ModInitializer {
     public static Framebuffers framebuffers;
     public static VanillaShaders vanillaShaders;
     public static ScreenQuad screenQuad;
+    public static CameraSav cameraSav;
 
     public static boolean isInitialized = false;
 
@@ -29,9 +30,10 @@ public class WaterShaderMod implements ModInitializer {
         framebuffers = new Framebuffers();
         renderPass = RenderPass.getInstance();
         vanillaShaders = VanillaShaders.getInstance();
+        cameraSav = new CameraSav();
 
         // Initialize clip plane
-        clipPlane.setHeight(62.1f);
+        clipPlane.setHeight(62.0f);
     }
 
     public static void InitContext() {
@@ -48,6 +50,7 @@ public class WaterShaderMod implements ModInitializer {
         int height = client.getWindow().getFramebufferHeight();
 
         // Initialize water framebuffers
+        framebuffers.initializeWorldFrameBuffer(width, height);
         framebuffers.initializeReflectionFrameBuffer(width, height);
         framebuffers.initializeRefractionFrameBuffer(width, height);
 

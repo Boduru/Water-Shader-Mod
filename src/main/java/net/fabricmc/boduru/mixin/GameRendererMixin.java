@@ -78,22 +78,35 @@ public abstract class GameRendererMixin {
 
         int reflectionFBO = WaterShaderMod.framebuffers.getReflectionFBO();
         int refractionFBO = WaterShaderMod.framebuffers.getRefractionFBO();
+        int worldFBO = WaterShaderMod.framebuffers.getWorldFrameBuffer();
         int minecraftFBO = client.getFramebuffer().fbo;
         int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
+        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
+        int worldColorTexture = WaterShaderMod.framebuffers.getWorldColorBuffer();
 
         float waterHeight = WaterShaderMod.clipPlane.getHeight();
 
         if (client.player != null) {
+            Entity cameraclient = client.player;
+
+            Vec3d position = cameraclient.getPos();
+            float pitch = cameraclient.getPitch();
+
+            double d = 2 * (position.getY() - waterHeight);
+
+            cameraclient.setPos(position.x, position.y - d, position.z);
+            cameraclient.setPitch(-pitch);
+
             // Set clipping plane to cull everything below the water
             Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
-            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, instance.getCamera(), plane);
+            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, instance.getClient().getCameraEntity(), plane);
 
             // Render reflection texture
             WaterShaderMod.renderPass.setDrawWater(false);
             instance.renderWorld(tickDelta, limitTime, matrices);
 
             if (Framebuffers.frameCount % 100 == 0) {
-//                Framebuffers.CopyFrameBufferTexture(width, height, 0, reflectionFBO);
+//                Framebuffers.CopyFrameBufferTexture(width, height, reflectionFBO, 0);
 //                GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, reflectionFBO);
 //                System.out.println("Frame count: " + Framebuffers.frameCount);
 //                Framebuffers.SaveImage(width, height);
@@ -109,17 +122,17 @@ public abstract class GameRendererMixin {
 //            ((CameraMixin) camera).invokeMoveBy(0, d, 0);
 //            camera.setPos(position.getX(), position.getY(), position.getZ());
 //            camera.setPitch(pitch);
+
+            cameraclient.setPos(position.x, position.y, position.z);
+            cameraclient.setPitch(pitch);
 //
 //            // Set clipping plane to cull nothing
-//            plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
-//            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
-//
-//            // Restore pitch and render world
-//            instance.renderWorld(tickDelta, limitTime, new MatrixStack());
-//            WaterShaderMod.renderPass.setDrawWater(true);
-//            instance.renderWorld(tickDelta, limitTime, new MatrixStack());
+            plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
+            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, instance.getClient().getCameraEntity(), plane);
 
-//            WaterShaderMod.screenQuad.render(reflectionColorTexture);
+            WaterShaderMod.renderPass.setDrawWater(true);
+            instance.renderWorld(tickDelta, limitTime, new MatrixStack());
+            WaterShaderMod.screenQuad.render(worldColorTexture, reflectionColorTexture, refractionColorTexture);
 
             Framebuffers.frameCount++;
         }
