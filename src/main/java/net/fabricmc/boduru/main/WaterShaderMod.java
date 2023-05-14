@@ -33,7 +33,7 @@ public class WaterShaderMod implements ModInitializer {
         cameraSav = new CameraSav();
 
         // Initialize clip plane
-        clipPlane.setHeight(62.0f);
+        clipPlane.setHeight(61.1f);
     }
 
     public static void InitContext() {

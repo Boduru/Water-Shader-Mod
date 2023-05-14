@@ -22,7 +22,9 @@ void main() {
 //    vec2 reflectionCoords = vec2(ndc.x, ndc.y);
 
 //    vec4 reflectionColor = texture(reflectionTexture, reflectionCoords);
-//    vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
+    vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
+    color = vec4(1, 0, 1, 1);
 
     fragColor = vec4(1, 0, 1, 1); // linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

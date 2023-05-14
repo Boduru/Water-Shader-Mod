@@ -99,7 +99,7 @@ public abstract class GameRendererMixin {
 
             // Set clipping plane to cull everything below the water
             Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
-            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, instance.getClient().getCameraEntity(), plane);
+            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
 
             // Render reflection texture
             WaterShaderMod.renderPass.setDrawWater(false);
@@ -128,7 +128,7 @@ public abstract class GameRendererMixin {
 //
 //            // Set clipping plane to cull nothing
             plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
-            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, instance.getClient().getCameraEntity(), plane);
+            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
 
             WaterShaderMod.renderPass.setDrawWater(true);
             instance.renderWorld(tickDelta, limitTime, new MatrixStack());
