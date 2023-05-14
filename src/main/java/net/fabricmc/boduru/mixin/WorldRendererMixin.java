@@ -22,10 +22,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WorldRenderer.class)
 public class WorldRendererMixin {
-    //@Inject(at = @At("HEAD"), method = "render")
+    @Inject(at = @At("HEAD"), method = "render")
     private void renderHead(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
-        if (!WaterShaderMod.renderPass.doDrawWater()) {
-            MinecraftClient client = MinecraftClient.getInstance();
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        if (client.player != null) {
+            if (!WaterShaderMod.renderPass.doDrawWater()) {
+                float waterHeight = WaterShaderMod.clipPlane.getHeight();
+                Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
+                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
+            /*MinecraftClient client = MinecraftClient.getInstance();
             Entity cameraclient = client.cameraEntity;
 
             Vec3d position = cameraclient.getPos();
@@ -48,7 +54,11 @@ public class WorldRendererMixin {
 
 //            ((CameraMixin) camera).invokeSetPos(position.x, position.y - d, position.z);
 //            ((CameraMixin) camera).invokeSetPos(position.x, position.y - d, position.z);
-//            ((CameraMixin) camera).setPitch(-pitch);
+//            ((CameraMixin) camera).setPitch(-pitch);*/
+            } else {
+                Vector4f plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
+                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
+            }
         }
     }
 

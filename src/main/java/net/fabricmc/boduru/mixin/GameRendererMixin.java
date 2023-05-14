@@ -73,32 +73,32 @@ public abstract class GameRendererMixin {
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"))
     private void renderWorld(GameRenderer instance, float tickDelta, long limitTime, MatrixStack matrices) {
         MinecraftClient client = MinecraftClient.getInstance();
-        int width = client.getWindow().getFramebufferWidth();
-        int height = client.getWindow().getFramebufferHeight();
-
-        int reflectionFBO = WaterShaderMod.framebuffers.getReflectionFBO();
-        int refractionFBO = WaterShaderMod.framebuffers.getRefractionFBO();
-        int worldFBO = WaterShaderMod.framebuffers.getWorldFrameBuffer();
-        int minecraftFBO = client.getFramebuffer().fbo;
-        int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
-        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
-        int worldColorTexture = WaterShaderMod.framebuffers.getWorldColorBuffer();
-
-        float waterHeight = WaterShaderMod.clipPlane.getHeight();
+//        int width = client.getWindow().getFramebufferWidth();
+//        int height = client.getWindow().getFramebufferHeight();
+//
+//        int reflectionFBO = WaterShaderMod.framebuffers.getReflectionFBO();
+//        int refractionFBO = WaterShaderMod.framebuffers.getRefractionFBO();
+//        int worldFBO = WaterShaderMod.framebuffers.getWorldFrameBuffer();
+//        int minecraftFBO = client.getFramebuffer().fbo;
+//        int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
+//        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
+//        int worldColorTexture = WaterShaderMod.framebuffers.getWorldColorBuffer();
+//
+//        float waterHeight = WaterShaderMod.clipPlane.getHeight();
 
         if (client.player != null) {
-            Entity cameraclient = client.player;
+//            Entity cameraclient = client.player;
 
-            Vec3d position = cameraclient.getPos();
-            float pitch = cameraclient.getPitch();
+//            Vec3d position = cameraclient.getPos();
+//            float pitch = cameraclient.getPitch();
 
 //            double d = 2 * (position.getY() - waterHeight);
 //            cameraclient.setPitch(-pitch);
 //            cameraclient.setPos(position.x, position.y - d, position.z);
 
             // Set clipping plane to cull everything below the water
-            Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
-            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
+//            Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
+//            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
 
             // Render reflection texture
             WaterShaderMod.renderPass.setDrawWater(false);
@@ -126,8 +126,8 @@ public abstract class GameRendererMixin {
 //            cameraclient.setPitch(pitch);
 //
 //            // Set clipping plane to cull nothing
-            plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
-            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
+//            plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
+//            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
 
             WaterShaderMod.renderPass.setDrawWater(true);
             instance.renderWorld(tickDelta, limitTime, new MatrixStack());
