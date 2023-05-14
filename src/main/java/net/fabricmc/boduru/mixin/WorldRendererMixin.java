@@ -110,8 +110,8 @@ public class WorldRendererMixin {
         } else {
             Framebuffers.CopyFrameBufferTexture(width, height, minecraftFBO, worldFBO);
             GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, minecraftFBO);
-            GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+//            GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+//            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             WaterShaderMod.screenQuad.render(worldColorTexture, reflectionColorTexture, refractionColorTexture);
         }
     }

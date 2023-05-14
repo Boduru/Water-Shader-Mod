@@ -14,9 +14,9 @@ bool isWater(vec4 color) {
 }
 
 void main() {
-//    vec4 worldColor = texture(worldTexture, TexCoords);
-    vec4 reflectionColor = texture(reflectionTexture, vec2(TexCoords.x, 1.0f - TexCoords.y));
-//    vec4 reflectionColor = texture(reflectionTexture, TexCoords);
+    vec4 worldColor = texture(worldTexture, TexCoords);
+//    vec4 reflectionColor = texture(reflectionTexture, vec2(TexCoords.x, -TexCoords.y));
+    vec4 reflectionColor = texture(reflectionTexture, -TexCoords);
 
 //    if (isWater(texColor)) {
 //        texColor = texture(reflectionTexture, TexCoords);
@@ -33,9 +33,13 @@ void main() {
 //        outColor = worldColor;
 //    }
 
+    if (isWater(worldColor))
+        outColor = reflectionColor;
+    else
+        outColor = worldColor;
 //    outColor = mix(worldColor, reflectionColor, 0.5f);
 
-    outColor = reflectionColor;
+//    outColor = reflectionColor;
 //    outColor = worldColor;
 
 

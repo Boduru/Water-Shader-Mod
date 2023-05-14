@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class Framebuffers {
-    protected static final int REFLECTION_WIDTH = 1708; //1920;
-    private static final int REFLECTION_HEIGHT = 960; //1080;
+    protected static final int REFLECTION_WIDTH = 1708 / 2; //1920;
+    private static final int REFLECTION_HEIGHT = 960 / 2; //1080;
 
     protected static final int REFRACTION_WIDTH = 1708; //1920;
     private static final int REFRACTION_HEIGHT = 960; //1080;

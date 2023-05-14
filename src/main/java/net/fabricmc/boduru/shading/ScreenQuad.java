@@ -73,6 +73,8 @@ public class ScreenQuad {
     public void render(int worldTexture, int reflectionTexture, int refractionTexture) {
         shader.useProgram();
 
+        glDisable(GL_BLEND);
+
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -87,7 +89,7 @@ public class ScreenQuad {
 
         // Minecraft viewport textures
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, reflectionTexture);
+        glBindTexture(GL_TEXTURE_2D, worldTexture);
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, reflectionTexture);
