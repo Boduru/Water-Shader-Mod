@@ -30,47 +30,49 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
-    //@Inject(at = @At("HEAD"), method = "render")
+    @Inject(at = @At("HEAD"), method = "render")
     private void renderHead(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
         if (!WaterShaderMod.renderPass.doDrawWater()) {
             MinecraftClient client = MinecraftClient.getInstance();
+            Entity cameraclient = client.player;
 
-            Entity camera = client.player;
-            if (camera != null) {
-                Vec3d position = camera.getPos();
-                float waterHeight = WaterShaderMod.clipPlane.getHeight();
+            if (cameraclient != null) {
+                Vec3d position = cameraclient.getPos();
+                float pitch = cameraclient.getPitch();
 
-//                double d = 2 * (position.getY() - waterHeight);
-//                camera.setPos(position.getX(), 100, position.getZ());
+                WaterShaderMod.cameraSav.pitch = pitch;
+                WaterShaderMod.cameraSav.position = position;
 
-//                Camera cameragr = client.gameRenderer.getCamera();
-//                camera.update(client.world, client.getCameraEntity() == null ? client.player : client.getCameraEntity(), !client.options.getPerspective().isFirstPerson(), client.options.getPerspective().isFrontView(), tickDelta);
-//                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
-//                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0f));
+                double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
+                cameraclient.setPos(position.getX(), d, position.getZ());
+                cameraclient.setPitch(-pitch);
+            }
+        }
+        else {
+            MinecraftClient client = MinecraftClient.getInstance();
+            Entity cameraclient = client.player;
+
+            Vec3d position = WaterShaderMod.cameraSav.position;
+
+            if (cameraclient != null) {
+                cameraclient.setPos(position.getX(), position.getY(), position.getZ());
+                cameraclient.setPitch(WaterShaderMod.cameraSav.pitch);
             }
         }
     }
 
-    //@Inject(at = @At("TAIL"), method = "render")
+    @Inject(at = @At("TAIL"), method = "render")
     private void renderTail(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
         if (!WaterShaderMod.renderPass.doDrawWater()) {
-            MinecraftClient client = MinecraftClient.getInstance();
-
-            Entity camera = client.player;
-            if (camera != null) {
-                Vec3d position = camera.getPos();
-                float waterHeight = WaterShaderMod.clipPlane.getHeight();
-
-                double d = 2 * (position.getY() - waterHeight);
-//                camera.setPos(position.getX(), 90, position.getZ());
-
-                Camera cameragr = client.gameRenderer.getCamera();
-                ((CameraMixin) cameragr).invokeSetPos(position.getX(), 90, position.getZ());
-            }
+            // Clipping plane pass
+            GameRenderer gameRenderer = (GameRenderer) (Object) this;
+            WaterShaderMod.renderPass.setDrawWater(true);
+            gameRenderer.render(tickDelta, startTime, tick);
+            WaterShaderMod.renderPass.setDrawWater(false);
         }
     }
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"))
+    //@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"))
     private void renderWorld(GameRenderer instance, float tickDelta, long limitTime, MatrixStack matrices) {
         MinecraftClient client = MinecraftClient.getInstance();
 //        int width = client.getWindow().getFramebufferWidth();
