@@ -93,7 +93,7 @@ public class ScreenQuad {
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, reflectionTexture);
-//
+
 //        glActiveTexture(GL_TEXTURE2);
 //        glBindTexture(GL_TEXTURE_2D, refractionTexture);
 //        uniformLocation = GL20.glGetUniformLocation(shader.getShaderProgram(), "refractionTexture");

@@ -93,9 +93,8 @@ public abstract class GameRendererMixin {
             float pitch = cameraclient.getPitch();
 
 //            double d = 2 * (position.getY() - waterHeight);
-//
-//            cameraclient.setPos(position.x, position.y - d, position.z);
 //            cameraclient.setPitch(-pitch);
+//            cameraclient.setPos(position.x, position.y - d, position.z);
 
             // Set clipping plane to cull everything below the water
             Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);

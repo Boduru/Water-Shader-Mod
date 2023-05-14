@@ -9,7 +9,7 @@ uniform sampler2D reflectionTexture;
 //uniform sampler2D refractionTexture;
 
 bool isWater(vec4 color) {
-    float epsilon = 0.1f;
+    float epsilon = 0.2f;
     return (color.r >= (1.0f - epsilon)) && (color.g <= epsilon) && (color.b >= (1.0f - epsilon));
 }
 
