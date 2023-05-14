@@ -87,20 +87,20 @@ public abstract class GameRendererMixin {
         float waterHeight = WaterShaderMod.clipPlane.getHeight();
 
         if (client.player != null) {
-            /*Entity cameraclient = client.player;
+            Entity cameraclient = client.player;
 
             Vec3d position = cameraclient.getPos();
             float pitch = cameraclient.getPitch();
 
-            double d = 2 * (position.getY() - waterHeight);
-
-            cameraclient.setPos(position.x, position.y - d, position.z);
-            cameraclient.setPitch(-pitch);
+//            double d = 2 * (position.getY() - waterHeight);
+//
+//            cameraclient.setPos(position.x, position.y - d, position.z);
+//            cameraclient.setPitch(-pitch);
 
             // Set clipping plane to cull everything below the water
             Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
             WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, instance.getClient().getCameraEntity(), plane);
-*/
+
             // Render reflection texture
             WaterShaderMod.renderPass.setDrawWater(false);
             instance.renderWorld(tickDelta, limitTime, matrices);
@@ -122,14 +122,14 @@ public abstract class GameRendererMixin {
 //            ((CameraMixin) camera).invokeMoveBy(0, d, 0);
 //            camera.setPos(position.getX(), position.getY(), position.getZ());
 //            camera.setPitch(pitch);
-/*
-            cameraclient.setPos(position.x, position.y, position.z);
-            cameraclient.setPitch(pitch);
+
+//            cameraclient.setPos(position.x, position.y, position.z);
+//            cameraclient.setPitch(pitch);
 //
 //            // Set clipping plane to cull nothing
             plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
             WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, instance.getClient().getCameraEntity(), plane);
-*/
+
             WaterShaderMod.renderPass.setDrawWater(true);
             instance.renderWorld(tickDelta, limitTime, new MatrixStack());
 
