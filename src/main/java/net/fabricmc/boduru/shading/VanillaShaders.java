@@ -142,11 +142,11 @@ public class VanillaShaders {
         // Get the uniform location
         int uniformLocation = GL20.glGetUniformLocation(sp.getGlRef(), "Sampler1");
 
-        GL13.glActiveTexture(GL13.GL_TEXTURE1);
+        GL13.glActiveTexture(GL13.GL_TEXTURE3);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
 
         // Set the new value
-        GL20.glUniform1i(uniformLocation, 1);
+        GL20.glUniform1i(uniformLocation, 3);
 
         // Stop using the shader program
 //        GL20.glUseProgram(0);

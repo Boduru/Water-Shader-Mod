@@ -55,6 +55,8 @@ public class WaterShaderMod implements ModInitializer {
         framebuffers.initializeReflectionFrameBuffer(width, height);
         framebuffers.initializeRefractionFrameBuffer(width, height);
 
+        System.out.println("Framebuffers Size: " + width + ":" + height);
+
         // Switch to initialized state
         isInitialized = true;
     }
