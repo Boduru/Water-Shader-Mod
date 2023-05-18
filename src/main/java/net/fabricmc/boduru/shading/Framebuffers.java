@@ -13,11 +13,17 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class Framebuffers {
-    protected static final int REFLECTION_WIDTH = 1708 / 2; //1920;
-    private static final int REFLECTION_HEIGHT = 960 / 2; //1080;
+//    protected static final int REFLECTION_WIDTH = 1708 / 2; //1920;
+//    private static final int REFLECTION_HEIGHT = 960 / 2; //1080;
+//
+//    protected static final int REFRACTION_WIDTH = 1708; //1920;
+//    private static final int REFRACTION_HEIGHT = 960; //1080;
 
-    protected static final int REFRACTION_WIDTH = 1708; //1920;
-    private static final int REFRACTION_HEIGHT = 960; //1080;
+    private int REFLECTION_WIDTH;
+    private int REFLECTION_HEIGHT;
+
+    private int REFRACTION_WIDTH;
+    private int REFRACTION_HEIGHT;
 
     public static int frameCount = 0;
 
@@ -32,6 +38,45 @@ public class Framebuffers {
     private int worldFrameBuffer;
     private int worldTexture;
     private int worldDepthBuffer;
+
+    public void setFramebuffersTextureSize(int width, int height) {
+        REFLECTION_WIDTH = width;
+        REFLECTION_HEIGHT = height;
+
+        REFRACTION_WIDTH = width;
+        REFRACTION_HEIGHT = height;
+    }
+
+    public void resizeTextures() {
+        // Reflection
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, reflectionTexture);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, REFLECTION_WIDTH, REFLECTION_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+        // Refraction
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, refractionTexture);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, REFRACTION_WIDTH, REFRACTION_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+        // World
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, worldTexture);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, REFRACTION_WIDTH, REFRACTION_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+        // Depth
+        GL11.glBindTexture(GL30.GL_RENDERBUFFER, reflectionDepthBuffer);
+        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, REFLECTION_WIDTH, REFLECTION_HEIGHT);
+        GL11.glBindTexture(GL30.GL_RENDERBUFFER, 0);
+
+        GL11.glBindTexture(GL30.GL_RENDERBUFFER, refractionDepthTexture);
+        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+        GL11.glBindTexture(GL30.GL_RENDERBUFFER, 0);
+
+        GL11.glBindTexture(GL30.GL_RENDERBUFFER, worldDepthBuffer);
+        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+        GL11.glBindTexture(GL30.GL_RENDERBUFFER, 0);
+
+    }
 
     public void bindReflectionFrameBuffer() {
         bindFrameBuffer(reflectionFrameBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);

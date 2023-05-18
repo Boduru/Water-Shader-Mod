@@ -50,6 +50,7 @@ public class WaterShaderMod implements ModInitializer {
         int height = client.getWindow().getFramebufferHeight();
 
         // Initialize water framebuffers
+        framebuffers.setFramebuffersTextureSize(width, height);
         framebuffers.initializeWorldFrameBuffer(width, height);
         framebuffers.initializeReflectionFrameBuffer(width, height);
         framebuffers.initializeRefractionFrameBuffer(width, height);

@@ -14,6 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -30,11 +31,40 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
-    @Inject(at = @At("HEAD"), method = "render")
+    //@Inject(at = @At("HEAD"), method = "render")
     private void renderHead(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+//        if (!WaterShaderMod.renderPass.doDrawWater()) {
+//            MinecraftClient client = MinecraftClient.getInstance();
+//            Entity cameraclient = client.player;
+//
+//            if (cameraclient != null) {
+//                Vec3d position = cameraclient.getPos();
+//                float pitch = cameraclient.getPitch();
+//
+//                WaterShaderMod.cameraSav.pitch = pitch;
+//                WaterShaderMod.cameraSav.position = position;
+//
+//                double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
+//                cameraclient.setPos(position.getX(), d, position.getZ());
+//                cameraclient.setPitch(-pitch);
+//            }
+//        }
+//        else {
+//            MinecraftClient client = MinecraftClient.getInstance();
+//            Entity cameraclient = client.player;
+//
+//            Vec3d position = WaterShaderMod.cameraSav.position;
+//
+//            if (cameraclient != null) {
+//                cameraclient.setPos(position.getX(), position.getY(), position.getZ());
+//                cameraclient.setPitch(WaterShaderMod.cameraSav.pitch);
+//            }
+//        }
+
+
         if (!WaterShaderMod.renderPass.doDrawWater()) {
             MinecraftClient client = MinecraftClient.getInstance();
-            Entity cameraclient = client.player;
+            Entity cameraclient = client.getCameraEntity();
 
             if (cameraclient != null) {
                 Vec3d position = cameraclient.getPos();
@@ -50,7 +80,7 @@ public abstract class GameRendererMixin {
         }
         else {
             MinecraftClient client = MinecraftClient.getInstance();
-            Entity cameraclient = client.player;
+            Entity cameraclient = client.getCameraEntity();
 
             Vec3d position = WaterShaderMod.cameraSav.position;
 
@@ -59,6 +89,31 @@ public abstract class GameRendererMixin {
                 cameraclient.setPitch(WaterShaderMod.cameraSav.pitch);
             }
         }
+
+
+
+        /*GameRenderer gameRenderer = (GameRenderer) (Object) this;
+        Camera camera = gameRenderer.getCamera();
+
+        if (!WaterShaderMod.renderPass.doDrawWater()) {
+            if (camera != null) {
+                Vec3d position = camera.getPos();
+                float pitch = camera.getPitch();
+
+                WaterShaderMod.cameraSav.pitch = pitch;
+                WaterShaderMod.cameraSav.position = position;
+
+                double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
+                ((CameraMixin) camera).invokeSetPos(position.getX(), d, position.getZ());
+                ((CameraMixin) camera).setPitch(-pitch);
+            }
+        } else {
+            Vec3d position = WaterShaderMod.cameraSav.position;
+            float pitch = WaterShaderMod.cameraSav.pitch;
+
+            ((CameraMixin) camera).invokeSetPos(position.x, position.y, position.z);
+            ((CameraMixin) camera).setPitch(pitch);
+        }*/
     }
 
     @Inject(at = @At("TAIL"), method = "render")
