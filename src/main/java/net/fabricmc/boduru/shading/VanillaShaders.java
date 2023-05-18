@@ -1,5 +1,6 @@
 package net.fabricmc.boduru.shading;
 
+import net.fabricmc.boduru.mixin.ShaderProgramMixin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.Camera;
@@ -20,6 +21,7 @@ import java.util.List;
 public class VanillaShaders {
     private List<String> terrainShaders;
     private String waterShader;
+    private boolean isWaterShaderSetup = false;
     public static VanillaShaders Instance;
 
     private VanillaShaders() {
@@ -88,20 +90,20 @@ public class VanillaShaders {
 //        }
 //    }
 
-//    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Camera camera, Vector4f plane) {
-//        // Calculate Inverse View Matrix
-//        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
-//        Matrix4f inverseViewMatrix = viewMatrix.invert();
-//
-//        for (String shader : terrainShaders) {
-//            // Inverse View Matrix
-//            ShaderProgram sp = client.gameRenderer.getProgram(shader);
-//            setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
-//
-//            // Clip Plane
-//            setVector4f(sp.getGlRef(), "plane", plane);
-//        }
-//    }
+    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Camera camera, Vector4f plane) {
+        // Calculate Inverse View Matrix
+        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
+        Matrix4f inverseViewMatrix = viewMatrix.invert();
+
+        for (String shader : terrainShaders) {
+            // Inverse View Matrix
+            ShaderProgram sp = client.gameRenderer.getProgram(shader);
+            setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
+
+            // Clip Plane
+            setVector4f(sp.getGlRef(), "plane", plane);
+        }
+    }
 
     public void setupVanillaShadersClippingPlanes(MinecraftClient client, Entity camera, Vector4f plane) {
         // Calculate Inverse View Matrix
@@ -134,18 +136,34 @@ public class VanillaShaders {
         // Use the shader program
         ShaderProgram sp = client.gameRenderer.getProgram(waterShader);
 
-        GL20.glUseProgram(sp.getGlRef());
+//        GL20.glUseProgram(sp.getGlRef());
 
+        //3553
         // Get the uniform location
-        int uniformLocation = GL20.glGetUniformLocation(sp.getGlRef(), "reflectionTexture");
+        int uniformLocation = GL20.glGetUniformLocation(sp.getGlRef(), "Sampler1");
 
-        GL13.glActiveTexture(GL13.GL_TEXTURE11);
+        GL13.glActiveTexture(GL13.GL_TEXTURE1);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
 
         // Set the new value
-        GL20.glUniform1i(uniformLocation, 11);
+        GL20.glUniform1i(uniformLocation, 1);
 
         // Stop using the shader program
 //        GL20.glUseProgram(0);
+    }
+
+    public void setupTranslucentShaderTexture(MinecraftClient client, int texture) {
+        // Use the shader program
+        ShaderProgram sp = client.gameRenderer.getProgram("rendertype_translucent");
+
+        if (!isWaterShaderSetup) {
+            int samplerID = GL20.glGetUniformLocation(sp.getGlRef(), "Sampler12");
+            sp.addSampler("Sampler12", texture);
+            ((ShaderProgramMixin)sp).getLoadedSamplerIds().add(samplerID);
+            ((ShaderProgramMixin)sp).getSamplerNames().add("Sampler12");
+            ((ShaderProgramMixin)sp).getSamplers().put("Sampler12", texture);
+
+            isWaterShaderSetup = true;
+        }
     }
 }

@@ -31,6 +31,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
+    @Shadow @Final private Camera camera;
+
     @Inject(at = @At("HEAD"), method = "render")
     private void renderHead(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
 //        if (!WaterShaderMod.renderPass.doDrawWater()) {
@@ -74,8 +76,10 @@ public abstract class GameRendererMixin {
                 WaterShaderMod.cameraSav.position = position;
 
                 double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
-                cameraclient.setPos(position.getX(), position.getY() - d, position.getZ());
-                cameraclient.setPitch(-pitch);
+//                cameraclient.updatePositionAndAngles(position.getX(), position.getY() - d, position.getZ(), cameraclient.getYaw(), -pitch);
+//                cameraclient.setPos(position.getX(), position.getY() - d, position.getZ());
+//                cameraclient.setPitch(-pitch);
+//                cameraclient.refreshPositionAndAngles(position.getX(), position.getY() - d, position.getZ(), -pitch, cameraclient.getYaw());
             }
         }
         else {
@@ -85,35 +89,39 @@ public abstract class GameRendererMixin {
             Vec3d position = WaterShaderMod.cameraSav.position;
 
             if (cameraclient != null) {
-                cameraclient.setPos(position.getX(), position.getY(), position.getZ());
-                cameraclient.setPitch(WaterShaderMod.cameraSav.pitch);
+//                cameraclient.setPos(position.getX(), position.getY(), position.getZ());
+//                cameraclient.setPitch(WaterShaderMod.cameraSav.pitch);
+//                cameraclient.updatePositionAndAngles(position.getX(), position.getY(), position.getZ(), cameraclient.getYaw(), WaterShaderMod.cameraSav.pitch);
+//                cameraclient.refreshPositionAndAngles(position.getX(), position.getY(), position.getZ(), WaterShaderMod.cameraSav.pitch, cameraclient.getYaw());
             }
         }
 
 
 
-        /*GameRenderer gameRenderer = (GameRenderer) (Object) this;
-        Camera camera = gameRenderer.getCamera();
-
-        if (!WaterShaderMod.renderPass.doDrawWater()) {
-            if (camera != null) {
-                Vec3d position = camera.getPos();
-                float pitch = camera.getPitch();
-
-                WaterShaderMod.cameraSav.pitch = pitch;
-                WaterShaderMod.cameraSav.position = position;
-
-                double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
-                ((CameraMixin) camera).invokeSetPos(position.getX(), d, position.getZ());
-                ((CameraMixin) camera).setPitch(-pitch);
-            }
-        } else {
-            Vec3d position = WaterShaderMod.cameraSav.position;
-            float pitch = WaterShaderMod.cameraSav.pitch;
-
-            ((CameraMixin) camera).invokeSetPos(position.x, position.y, position.z);
-            ((CameraMixin) camera).setPitch(pitch);
-        }*/
+//        GameRenderer gameRenderer = (GameRenderer) (Object) this;
+//        Camera camera = gameRenderer.getCamera();
+//
+//        if (!WaterShaderMod.renderPass.doDrawWater()) {
+//            if (camera != null) {
+//                Vec3d position = camera.getPos();
+//                float pitch = camera.getPitch();
+//
+//                WaterShaderMod.cameraSav.pitch = pitch;
+//                WaterShaderMod.cameraSav.position = position;
+//
+//                double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
+//                ((CameraMixin) camera).invokeSetPos(position.getX(), position.getY() - d, position.getZ());
+//                ((CameraMixin) camera).setPitch(-pitch);
+//                ((CameraMixin) camera).invokeSetRotation(camera.getPitch(), camera.getYaw());
+//            }
+//        } else {
+//            Vec3d position = WaterShaderMod.cameraSav.position;
+//            float pitch = WaterShaderMod.cameraSav.pitch;
+//
+//            ((CameraMixin) camera).invokeSetPos(position.x, position.y, position.z);
+//            ((CameraMixin) camera).setPitch(pitch);
+//            ((CameraMixin) camera).invokeSetRotation(camera.getPitch(), camera.getYaw());
+//        }
     }
 
     @Inject(at = @At("TAIL"), method = "render")
