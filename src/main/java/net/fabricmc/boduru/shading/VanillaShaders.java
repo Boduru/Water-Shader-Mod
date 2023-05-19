@@ -43,7 +43,7 @@ public class VanillaShaders {
 
     public void setMatrix4f(int shaderProgram, String uniformName, Matrix4f model) {
         // Use the shader program
-//        GL20.glUseProgram(shaderProgram);
+        GL20.glUseProgram(shaderProgram);
 
         // Get the uniform location
         int uniformLocation = GL20.glGetUniformLocation(shaderProgram, uniformName);
@@ -61,7 +61,7 @@ public class VanillaShaders {
 
     public void setVector4f(int shaderProgram, String uniformName, Vector4f vector) {
         // Use the shader program
-//        GL20.glUseProgram(shaderProgram);
+        GL20.glUseProgram(shaderProgram);
 
         // Get the uniform location
         int uniformLocation = GL20.glGetUniformLocation(shaderProgram, uniformName);

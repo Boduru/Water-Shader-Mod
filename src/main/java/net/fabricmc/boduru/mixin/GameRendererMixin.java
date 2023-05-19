@@ -30,8 +30,8 @@ public abstract class GameRendererMixin {
                 double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
                 ((CameraMixin) camera).setPitch(-pitch);
 //                ((CameraMixin)camera).invokeSetPos(position.getX(), position.getY() - d, position.getZ());
-                ((CameraMixin) camera).setCameraY((float) (position.getY() - d));
-                ((CameraMixin) camera).setLastCameraY((float) (position.getY() - d));
+//                ((CameraMixin) camera).setCameraY((float) (position.getY() - d));
+//                ((CameraMixin) camera).setLastCameraY((float) (position.getY() - d));
                 ((CameraMixin) camera).invokeSetRotation(-pitch, ((CameraMixin) camera).getYaw());
             }
         }
@@ -42,8 +42,8 @@ public abstract class GameRendererMixin {
             float lastCameraY = WaterShaderMod.cameraSav.lastCameraY;
 
             if (camera != null) {
-                ((CameraMixin) camera).setLastCameraY(lastCameraY);
-                ((CameraMixin) camera).setCameraY(cameraY);
+//                ((CameraMixin) camera).setLastCameraY(lastCameraY);
+//                ((CameraMixin) camera).setCameraY(cameraY);
                 ((CameraMixin) camera).setPitch(pitch);
 //                ((CameraMixin)camera).invokeSetPos(position.getX(), position.getY(), position.getZ());
                 ((CameraMixin) camera).invokeSetRotation(pitch, ((CameraMixin) camera).getYaw());
