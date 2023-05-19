@@ -148,6 +148,13 @@ public class VanillaShaders {
         // Set the new value
         GL20.glUniform1i(uniformLocation, 3);
 
+        // Setup Screen Size
+        int screenWidthLoc = GL20.glGetUniformLocation(sp.getGlRef(), "screenWidth");
+        GL20.glUniform1i(screenWidthLoc, client.getWindow().getFramebufferWidth());
+
+        int screenHeightLoc = GL20.glGetUniformLocation(sp.getGlRef(), "screenHeight");
+        GL20.glUniform1i(screenHeightLoc, client.getWindow().getFramebufferHeight());
+
         // Stop using the shader program
 //        GL20.glUseProgram(0);
     }
