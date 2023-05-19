@@ -1,5 +1,6 @@
 package net.fabricmc.boduru.shading;
 
+import net.fabricmc.boduru.main.WaterShaderMod;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
@@ -13,17 +14,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class Framebuffers {
-//    protected static final int REFLECTION_WIDTH = 1708 / 2; //1920;
-//    private static final int REFLECTION_HEIGHT = 960 / 2; //1080;
-//
-//    protected static final int REFRACTION_WIDTH = 1708; //1920;
-//    private static final int REFRACTION_HEIGHT = 960; //1080;
-
-    private int REFLECTION_WIDTH;
-    private int REFLECTION_HEIGHT;
-
-    private int REFRACTION_WIDTH;
-    private int REFRACTION_HEIGHT;
+    private int FRAMEBUFFER_WIDTH = 1920;
+    private int FRAMEBUFFER_HEIGHT = 1080;
 
     public static int frameCount = 0;
 
@@ -39,51 +31,42 @@ public class Framebuffers {
     private int worldTexture;
     private int worldDepthBuffer;
 
-    public void setFramebuffersTextureSize(int width, int height) {
-        REFLECTION_WIDTH = width;
-        REFLECTION_HEIGHT = height;
-
-        REFRACTION_WIDTH = width;
-        REFRACTION_HEIGHT = height;
+    public void setFramebuffersSize(int width, int height) {
+        FRAMEBUFFER_WIDTH = width;
+        FRAMEBUFFER_HEIGHT = height;
     }
 
-    public void resizeTextures() {
+    public void resizeTextures(int width, int height) {
+        setFramebuffersSize(width, height);
+
         // Reflection
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, reflectionTexture);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, REFLECTION_WIDTH, REFLECTION_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
         // Refraction
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, refractionTexture);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, REFRACTION_WIDTH, REFRACTION_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
         // World
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, worldTexture);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, REFRACTION_WIDTH, REFRACTION_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
         // Depth
         GL11.glBindTexture(GL30.GL_RENDERBUFFER, reflectionDepthBuffer);
-        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, REFLECTION_WIDTH, REFLECTION_HEIGHT);
+        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
         GL11.glBindTexture(GL30.GL_RENDERBUFFER, 0);
 
         GL11.glBindTexture(GL30.GL_RENDERBUFFER, refractionDepthTexture);
-        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
         GL11.glBindTexture(GL30.GL_RENDERBUFFER, 0);
 
         GL11.glBindTexture(GL30.GL_RENDERBUFFER, worldDepthBuffer);
-        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
         GL11.glBindTexture(GL30.GL_RENDERBUFFER, 0);
 
-    }
-
-    public void bindReflectionFrameBuffer() {
-        bindFrameBuffer(reflectionFrameBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
-    }
-
-    public void bindRefractionFrameBuffer() {
-        bindFrameBuffer(refractionFrameBuffer, REFRACTION_WIDTH, REFRACTION_HEIGHT);
     }
 
     public void unbindCurrentFrameBuffer(int displayWidth, int displayHeight) {
@@ -99,59 +82,43 @@ public class Framebuffers {
         return refractionFrameBuffer;
     }
 
-    public int getReflectionTexture() {//get the resulting texture
+    public int getReflectionTexture() {
         return reflectionTexture;
     }
 
-    public int getRefractionTexture() {//get the resulting texture
+    public int getRefractionTexture() {
         return refractionTexture;
-    }
-
-    public int getReflectionColorBuffer() {
-        return reflectionTexture;
-    }
-
-    public int getRefractionColorBuffer() {
-        return refractionTexture;
-    }
-
-    public int getWorldFrameBuffer() {
-        return worldFrameBuffer;
-    }
-
-    public int getWorldColorBuffer() {
-        return worldTexture;
     }
 
     public void initializeWorldFrameBuffer(int displayWidth, int displayHeight) {
         worldFrameBuffer = createFrameBuffer();
-        worldTexture = createTextureAttachment(REFLECTION_WIDTH, REFLECTION_HEIGHT);
-        worldDepthBuffer = createDepthBufferAttachment(REFLECTION_WIDTH, REFLECTION_HEIGHT);
+        worldTexture = createTextureAttachment(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
+        worldDepthBuffer = createDepthBufferAttachment(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 
         final boolean complete = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) == GL30.GL_FRAMEBUFFER_COMPLETE;
-        System.out.println("World Framebuffer complete: " + complete);
+        WaterShaderMod.LOGGER.info("World Framebuffer complete: " + complete);
 
         unbindCurrentFrameBuffer(displayWidth, displayHeight);
     }
 
     public void initializeReflectionFrameBuffer(int displayWidth, int displayHeight) {
         reflectionFrameBuffer = createFrameBuffer();
-        reflectionTexture = createTextureAttachment(REFLECTION_WIDTH, REFLECTION_HEIGHT);
-        reflectionDepthBuffer = createDepthBufferAttachment(REFLECTION_WIDTH, REFLECTION_HEIGHT);
+        reflectionTexture = createTextureAttachment(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
+        reflectionDepthBuffer = createDepthBufferAttachment(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 
         final boolean complete = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) == GL30.GL_FRAMEBUFFER_COMPLETE;
-        System.out.println("Reflection Framebuffer complete: " + complete);
+        WaterShaderMod.LOGGER.info("Reflection Framebuffer complete: " + complete);
 
         unbindCurrentFrameBuffer(displayWidth, displayHeight);
     }
 
     public void initializeRefractionFrameBuffer(int displayWidth, int displayHeight) {
         refractionFrameBuffer = createFrameBuffer();
-        refractionTexture = createTextureAttachment(REFRACTION_WIDTH, REFRACTION_HEIGHT);
-        refractionDepthTexture = createDepthTextureAttachment(REFRACTION_WIDTH, REFRACTION_HEIGHT);
+        refractionTexture = createTextureAttachment(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
+        refractionDepthTexture = createDepthTextureAttachment(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 
         final boolean complete = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) == GL30.GL_FRAMEBUFFER_COMPLETE;
-        System.out.println("Refraction Framebuffer complete: " + complete);
+        WaterShaderMod.LOGGER.info("Refraction Framebuffer complete: " + complete);
 
         unbindCurrentFrameBuffer(displayWidth, displayHeight);
     }
@@ -214,16 +181,6 @@ public class Framebuffers {
         GL30.glReadBuffer(GL30.GL_COLOR_ATTACHMENT0);
         GL30.glDrawBuffer(GL30.GL_COLOR_ATTACHMENT0);
         GL30.glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL30.GL_COLOR_BUFFER_BIT, GL30.GL_NEAREST);
-
-//        int res = GL30.glCheckFramebufferStatus(fboIn);
-//        if (res != GL30.GL_FRAMEBUFFER_COMPLETE) {
-//            System.out.println("GL Error(Minecraft): " + res);
-//        }
-//
-//        res = GL30.glCheckFramebufferStatus(fboOut);
-//        if (res != GL30.GL_FRAMEBUFFER_COMPLETE) {
-//            System.out.println("GL Error(Reflection): " + res);
-//        }
     }
 
     public static void SaveImage(int width, int height) {

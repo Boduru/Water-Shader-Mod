@@ -31,7 +31,4 @@ public interface CameraMixin {
 
     @Invoker
     void invokeSetPos(double x, double y, double z);
-
-    @Invoker
-    void invokeMoveBy(double x, double y, double z);
 }

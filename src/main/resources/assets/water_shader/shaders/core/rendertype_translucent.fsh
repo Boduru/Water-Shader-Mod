@@ -22,6 +22,8 @@ in vec4 clipspace;
 out vec4 fragColor;
 
 void main() {
+//    vec2 ndc = (clipspace.xy / clipspace.w) / 2.0 + 0.5;
+//    vec2 reflectionCoords = vec2(ndc.x, -ndc.y);
     vec2 reflectionCoords = vec2(gl_FragCoord.x / screenWidth, -gl_FragCoord.y / screenHeight);
 
     vec4 reflectionColor = texture(Sampler1, reflectionCoords);

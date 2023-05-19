@@ -3,29 +3,19 @@ package net.fabricmc.boduru.mixin;
 import net.fabricmc.boduru.main.WaterShaderMod;
 import net.fabricmc.boduru.shading.Framebuffers;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.nio.IntBuffer;
-
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.glDisable;
 
 @Mixin(WorldRenderer.class)
 public class WorldRendererMixin {
@@ -50,10 +40,10 @@ public class WorldRendererMixin {
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/VertexBuffer;bind()V", shift = At.Shift.AFTER), method = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLorg/joml/Matrix4f;)V")
     public void inject(RenderLayer renderLayer, MatrixStack matrices, double cameraX, double cameraY, double cameraZ, Matrix4f positionMatrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
-        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionColorBuffer();
+        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
         int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
 
-        glDisable(GL_BLEND);
+        GL11.glDisable(GL11.GL_BLEND);
 
         int[] ints = new int[1];
         GL11.glGetIntegerv(GL20.GL_CURRENT_PROGRAM, ints);
@@ -62,7 +52,7 @@ public class WorldRendererMixin {
         ShaderProgram currentProgram = client.gameRenderer.getProgram("rendertype_translucent");
 
         if (program == currentProgram.getGlRef()) {
-            WaterShaderMod.vanillaShaders.setupWaterShaderTexture(client, reflectionColorTexture);
+            WaterShaderMod.vanillaShaders.setupWaterShader(client, reflectionColorTexture);
         }
     }
 
@@ -71,39 +61,12 @@ public class WorldRendererMixin {
         MinecraftClient client = MinecraftClient.getInstance();
         int width = client.getWindow().getFramebufferWidth();
         int height = client.getWindow().getFramebufferHeight();
-        int worldFBO = WaterShaderMod.framebuffers.getWorldFrameBuffer();
         int minecraftFBO = client.getFramebuffer().fbo;
         int reflectionFBO = WaterShaderMod.framebuffers.getReflectionFBO();
-
-        int worldColorTexture = WaterShaderMod.framebuffers.getWorldColorBuffer();
-        int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionColorBuffer();
-        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionColorBuffer();
+        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
 
         if (!WaterShaderMod.renderPass.doDrawWater()) {
             Framebuffers.CopyFrameBufferTexture(width, height, minecraftFBO, reflectionFBO);
-
-            // Fill the reflection framebuffer with lightblue color
-//            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, reflectionFBO);
-//            GL11.glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
-//            GL11.glClearColor(0.0f, 0.3f, 0.8f, 1.0f);
-//            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-//            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, minecraftFBO);
-//            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-//            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        } else {
-//            Framebuffers.CopyFrameBufferTexture(width, height, minecraftFBO, worldFBO);
-//            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, minecraftFBO);
-//            GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-//            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-//            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-//            GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-//            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-//            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, minecraftFBO);
-//            WaterShaderMod.screenQuad.render(worldColorTexture, reflectionColorTexture, refractionColorTexture);
-
-
-
-
         }
     }
 

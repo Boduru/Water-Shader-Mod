@@ -16,10 +16,9 @@ public class WaterShaderMod implements ModInitializer {
     public static ClipPlane clipPlane;
     public static Framebuffers framebuffers;
     public static VanillaShaders vanillaShaders;
-    public static ScreenQuad screenQuad;
     public static CameraSav cameraSav;
 
-    public static boolean isInitialized = false;
+    private static boolean isInitialized = false;
 
     @Override
     public void onInitialize() {
@@ -42,15 +41,13 @@ public class WaterShaderMod implements ModInitializer {
             return;
         }
 
-        screenQuad = new ScreenQuad();
-
         // Get the window size
         MinecraftClient client = MinecraftClient.getInstance();
         int width = client.getWindow().getFramebufferWidth();
         int height = client.getWindow().getFramebufferHeight();
 
         // Initialize water framebuffers
-        framebuffers.setFramebuffersTextureSize(width, height);
+        framebuffers.setFramebuffersSize(width, height);
         framebuffers.initializeWorldFrameBuffer(width, height);
         framebuffers.initializeReflectionFrameBuffer(width, height);
         framebuffers.initializeRefractionFrameBuffer(width, height);
