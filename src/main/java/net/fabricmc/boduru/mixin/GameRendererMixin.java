@@ -65,17 +65,25 @@ public abstract class GameRendererMixin {
 
         if (!WaterShaderMod.renderPass.doDrawWater()) {
             MinecraftClient client = MinecraftClient.getInstance();
-            Entity cameraclient = client.player;
+//            Entity cameraclient = client.player;
 
-            if (cameraclient != null) {
+            if (camera != null) {
 //                Vec3d position = cameraclient.getCameraPosVec(tickDelta);
-                Vec3d position = cameraclient.getPos();
-                float pitch = cameraclient.getPitch();
+                Vec3d position = camera.getPos();
+                float pitch = camera.getPitch();
 
                 WaterShaderMod.cameraSav.pitch = pitch;
                 WaterShaderMod.cameraSav.position = position;
+                WaterShaderMod.cameraSav.cameraY = ((CameraMixin)camera).getCameraY();
+                WaterShaderMod.cameraSav.lastCameraY = ((CameraMixin)camera).getLastCameraY();
 
                 double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
+                ((CameraMixin)camera).setPitch(-pitch);
+                ((CameraMixin)camera).invokeSetPos(position.getX(), position.getY() - d, position.getZ());
+                ((CameraMixin)camera).setCameraY((float) (position.getY() - d));
+                ((CameraMixin)camera).setLastCameraY((float) (position.getY() - d));
+                ((CameraMixin)camera).invokeSetRotation(-pitch, ((CameraMixin)camera).getYaw());
+
 //                cameraclient.updatePositionAndAngles(position.getX(), position.getY() - d, position.getZ(), cameraclient.getYaw(), -pitch);
 //                cameraclient.setPos(position.getX(), position.getY() - d, position.getZ());
 //                cameraclient.setPitch(-pitch);
@@ -84,11 +92,19 @@ public abstract class GameRendererMixin {
         }
         else {
             MinecraftClient client = MinecraftClient.getInstance();
-            Entity cameraclient = client.player;
+//            Entity cameraclient = client.player;
 
             Vec3d position = WaterShaderMod.cameraSav.position;
+            float pitch = WaterShaderMod.cameraSav.pitch;
+            float cameraY = WaterShaderMod.cameraSav.cameraY;
+            float lastCameraY = WaterShaderMod.cameraSav.lastCameraY;
 
-            if (cameraclient != null) {
+            if (camera != null) {
+                ((CameraMixin)camera).setLastCameraY(lastCameraY);
+                ((CameraMixin)camera).setCameraY(cameraY);
+                ((CameraMixin)camera).setPitch(pitch);
+                ((CameraMixin)camera).invokeSetPos(position.getX(), position.getY(), position.getZ());
+                ((CameraMixin)camera).invokeSetRotation(pitch, ((CameraMixin)camera).getYaw());
 //                cameraclient.setPos(position.getX(), position.getY(), position.getZ());
 //                cameraclient.setPitch(WaterShaderMod.cameraSav.pitch);
 //                cameraclient.updatePositionAndAngles(position.getX(), position.getY(), position.getZ(), cameraclient.getYaw(), WaterShaderMod.cameraSav.pitch);
@@ -132,72 +148,6 @@ public abstract class GameRendererMixin {
             WaterShaderMod.renderPass.setDrawWater(true);
             gameRenderer.render(tickDelta, startTime, tick);
             WaterShaderMod.renderPass.setDrawWater(false);
-        }
-    }
-
-    //@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"))
-    private void renderWorld(GameRenderer instance, float tickDelta, long limitTime, MatrixStack matrices) {
-        MinecraftClient client = MinecraftClient.getInstance();
-//        int width = client.getWindow().getFramebufferWidth();
-//        int height = client.getWindow().getFramebufferHeight();
-//
-//        int reflectionFBO = WaterShaderMod.framebuffers.getReflectionFBO();
-//        int refractionFBO = WaterShaderMod.framebuffers.getRefractionFBO();
-//        int worldFBO = WaterShaderMod.framebuffers.getWorldFrameBuffer();
-//        int minecraftFBO = client.getFramebuffer().fbo;
-//        int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
-//        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
-//        int worldColorTexture = WaterShaderMod.framebuffers.getWorldColorBuffer();
-//
-//        float waterHeight = WaterShaderMod.clipPlane.getHeight();
-
-        if (client.player != null) {
-//            Entity cameraclient = client.player;
-
-//            Vec3d position = cameraclient.getPos();
-//            float pitch = cameraclient.getPitch();
-
-//            double d = 2 * (position.getY() - waterHeight);
-//            cameraclient.setPitch(-pitch);
-//            cameraclient.setPos(position.x, position.y - d, position.z);
-
-            // Set clipping plane to cull everything below the water
-//            Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
-//            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
-
-            // Render reflection texture
-            WaterShaderMod.renderPass.setDrawWater(false);
-            instance.renderWorld(tickDelta, limitTime, matrices);
-
-            if (Framebuffers.frameCount % 100 == 0) {
-//                Framebuffers.CopyFrameBufferTexture(width, height, reflectionFBO, 0);
-//                GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, reflectionFBO);
-//                System.out.println("Frame count: " + Framebuffers.frameCount);
-//                Framebuffers.SaveImage(width, height);
-//                GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-            }
-
-//            WaterShaderMod.framebuffers.bindReflectionFrameBuffer();
-//            WaterShaderMod.vanillaShaders.setupWaterShaderTexture(client, reflectionColorTexture);
-//            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, minecraftFBO);
-//
-//            // Restore pitch and position
-//            ((CameraMixin) camera).invokeSetPos(position.getX(), position.getY(), position.getZ());
-//            ((CameraMixin) camera).invokeMoveBy(0, d, 0);
-//            camera.setPos(position.getX(), position.getY(), position.getZ());
-//            camera.setPitch(pitch);
-
-//            cameraclient.setPos(position.x, position.y, position.z);
-//            cameraclient.setPitch(pitch);
-//
-//            // Set clipping plane to cull nothing
-//            plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
-//            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
-
-            WaterShaderMod.renderPass.setDrawWater(true);
-            instance.renderWorld(tickDelta, limitTime, new MatrixStack());
-
-            Framebuffers.frameCount++;
         }
     }
 }
