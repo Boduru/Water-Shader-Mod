@@ -27,12 +27,12 @@ public class WorldRendererMixin {
             if (!WaterShaderMod.renderPass.doDrawWater()) {
                 float waterHeight = WaterShaderMod.clipPlane.getHeight();
                 Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
-//                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
-                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
+                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
+//                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
             } else {
                 Vector4f plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
-//                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
-                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
+                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
+//                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
             }
         }
     }
