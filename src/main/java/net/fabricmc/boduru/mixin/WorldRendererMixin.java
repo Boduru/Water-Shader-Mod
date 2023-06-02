@@ -2,6 +2,7 @@ package net.fabricmc.boduru.mixin;
 
 import net.fabricmc.boduru.main.WaterShaderMod;
 import net.fabricmc.boduru.shading.Framebuffers;
+import net.fabricmc.boduru.shading.RenderPass;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.*;
@@ -24,21 +25,25 @@ public class WorldRendererMixin {
         MinecraftClient client = MinecraftClient.getInstance();
 
         if (client.player != null) {
-            if (!WaterShaderMod.renderPass.doDrawWater()) {
+            if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
                 float waterHeight = WaterShaderMod.clipPlane.getHeight();
                 Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
+                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
+//                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
+            } else if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
+                float waterHeight = WaterShaderMod.clipPlane.getHeight();
+                Vector4f plane = new Vector4f(0.0f, -1.0f, 0.0f, waterHeight);
                 WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
 //                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
             } else {
                 Vector4f plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
                 WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
-//                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
             }
         }
     }
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/VertexBuffer;bind()V", shift = At.Shift.AFTER), method = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLorg/joml/Matrix4f;)V")
-    public void inject(RenderLayer renderLayer, MatrixStack matrices, double cameraX, double cameraY, double cameraZ, Matrix4f positionMatrix, CallbackInfo ci) {
+    public void setupWaterShaderParams(RenderLayer renderLayer, MatrixStack matrices, double cameraX, double cameraY, double cameraZ, Matrix4f positionMatrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
         int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
         int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
@@ -52,7 +57,7 @@ public class WorldRendererMixin {
         ShaderProgram currentProgram = client.gameRenderer.getProgram("rendertype_translucent");
 
         if (program == currentProgram.getGlRef()) {
-            WaterShaderMod.vanillaShaders.setupWaterShader(client, reflectionColorTexture);
+            WaterShaderMod.vanillaShaders.setupWaterShader(client, reflectionColorTexture, refractionColorTexture);
         }
     }
 
@@ -63,10 +68,13 @@ public class WorldRendererMixin {
         int height = client.getWindow().getFramebufferHeight();
         int minecraftFBO = client.getFramebuffer().fbo;
         int reflectionFBO = WaterShaderMod.framebuffers.getReflectionFBO();
-        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
+        int refractionFBO = WaterShaderMod.framebuffers.getRefractionFBO();
 
-        if (!WaterShaderMod.renderPass.doDrawWater()) {
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
             Framebuffers.CopyFrameBufferTexture(width, height, minecraftFBO, reflectionFBO);
+        }
+        else if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
+            Framebuffers.CopyFrameBufferTexture(width, height, minecraftFBO, refractionFBO);
         }
     }
 
@@ -76,7 +84,7 @@ public class WorldRendererMixin {
 
     @Redirect(method = "Lnet/minecraft/client/render/WorldRenderer;render(Lnet/minecraft/client/util/math/MatrixStack;FJZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lorg/joml/Matrix4f;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLorg/joml/Matrix4f;)V", ordinal = 5))
     private void redirectWaterDrawCall(WorldRenderer instance, RenderLayer renderLayer, MatrixStack matrices, double cameraX, double cameraY, double cameraZ, Matrix4f positionMatrix) {
-        if (WaterShaderMod.renderPass.doDrawWater()) {
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.WATER) {
             renderLayer(renderLayer, matrices, cameraX, cameraY, cameraZ, positionMatrix);
         }
     }

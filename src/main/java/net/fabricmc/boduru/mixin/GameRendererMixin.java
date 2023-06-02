@@ -1,6 +1,7 @@
 package net.fabricmc.boduru.mixin;
 
 import net.fabricmc.boduru.main.WaterShaderMod;
+import net.fabricmc.boduru.shading.RenderPass;
 import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -65,7 +66,7 @@ public abstract class GameRendererMixin {
             if (client.player.getPos() == null) return;
 
             double d = 2 * (client.player.getPos().getY() - WaterShaderMod.clipPlane.getHeight());
-            matrices.multiplyPositionMatrix(new Matrix4f().translate(0, (float) -d, 0));
+//            matrices.multiplyPositionMatrix(new Matrix4f().translate(0, (float) -d, 0));
 //            matrices.translate(0, -d, 0);
         }
 
@@ -73,7 +74,7 @@ public abstract class GameRendererMixin {
     private void PostCameraUpdate(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        if (!WaterShaderMod.renderPass.doDrawWater()) {
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
             if (camera.getFocusedEntity() != null && client.player != null)  {
                 // Saving
                 WaterShaderMod.cameraSav.cameraPitch = camera.getPitch();
@@ -86,6 +87,7 @@ public abstract class GameRendererMixin {
                 double d = 2 * (client.player.getPos().getY() - WaterShaderMod.clipPlane.getHeight());
 //                client.player.setPos(client.player.getPos().getX(), client.player.getPos().getY() - d, client.player.getPos().getZ());
                 client.player.setPitch(pitch);
+                //client.player.setPos(client.player.getPos().getX(), client.player.getPos().getY() - d, client.player.getPos().getZ());
 
                 // Move camera as well
                 Vec3d cameraPos = camera.getPos();
@@ -127,10 +129,10 @@ public abstract class GameRendererMixin {
 
     @Inject(at = @At("TAIL"), method = "render")
     private void renderTail(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
-        if (!WaterShaderMod.renderPass.doDrawWater()) {
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
             // Clipping plane pass
             GameRenderer gameRenderer = (GameRenderer) (Object) this;
-            WaterShaderMod.renderPass.setDrawWater(true);
+            WaterShaderMod.renderPass.nextRenderPass();
 
             // Restore camera
             MinecraftClient client = MinecraftClient.getInstance();
@@ -140,6 +142,7 @@ public abstract class GameRendererMixin {
                 Vec3d position = WaterShaderMod.cameraSav.playerPosition;
 //                client.player.setPos(position.getX(), position.getY(), position.getZ());
                 client.player.setPitch(pitch);
+                //client.player.setPos(position.getX(), position.getY(), position.getZ());
 
                 // Move camera as well
                 Vec3d cameraPosition = WaterShaderMod.cameraSav.cameraPosition;
@@ -151,7 +154,14 @@ public abstract class GameRendererMixin {
             }
 
             gameRenderer.render(tickDelta, startTime, tick);
-            WaterShaderMod.renderPass.setDrawWater(false);
+        }
+
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
+            GameRenderer gameRenderer = (GameRenderer) (Object) this;
+            WaterShaderMod.renderPass.nextRenderPass();
+
+            gameRenderer.render(tickDelta, startTime, tick);
+            WaterShaderMod.renderPass.nextRenderPass();
         }
     }
 }

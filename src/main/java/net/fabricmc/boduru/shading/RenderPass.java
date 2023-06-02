@@ -6,7 +6,13 @@ package net.fabricmc.boduru.shading;
  */
 
 public class RenderPass {
-    private boolean drawWater = false;
+    public enum Pass {
+        REFLECTION,
+        REFRACTION,
+        WATER
+    }
+
+    private Pass currentPass = Pass.REFLECTION;
 
     private static RenderPass Instance;
 
@@ -19,11 +25,11 @@ public class RenderPass {
         return Instance;
     }
 
-    public void setDrawWater(boolean drawWater) {
-        this.drawWater = drawWater;
+    public void nextRenderPass() {
+        currentPass = Pass.values()[(currentPass.ordinal() + 1) % Pass.values().length];
     }
 
-    public boolean doDrawWater() {
-        return this.drawWater;
+    public Pass getCurrentPass() {
+        return this.currentPass;
     }
 }

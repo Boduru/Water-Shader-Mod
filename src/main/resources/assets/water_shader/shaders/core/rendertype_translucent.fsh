@@ -3,7 +3,8 @@
 #moj_import <fog.glsl>
 
 uniform sampler2D Sampler0;
-layout (binding = 3) uniform sampler2D Sampler1;
+uniform sampler2D Sampler1;
+uniform sampler2D Sampler3;
 
 uniform vec4 ColorModulator;
 uniform float FogStart;
@@ -25,10 +26,14 @@ void main() {
 //    vec2 ndc = (clipspace.xy / clipspace.w) / 2.0 + 0.5;
 //    vec2 reflectionCoords = vec2(ndc.x, -ndc.y);
     vec2 reflectionCoords = vec2(gl_FragCoord.x / screenWidth, -gl_FragCoord.y / screenHeight);
+    vec2 refractionCoords = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
 
     vec4 reflectionColor = texture(Sampler1, reflectionCoords);
+    vec4 refractionColor = texture(Sampler3, refractionCoords);
     vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
+
     color = reflectionColor;
+    color = mix(refractionColor, reflectionColor, 0.5);
 
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

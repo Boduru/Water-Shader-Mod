@@ -54,9 +54,6 @@ public class VanillaShaders {
 
         // Set the new value
         GL20.glUniformMatrix4fv(uniformLocation, false, buffer);
-
-        // Stop using the shader program
-//        GL20.glUseProgram(0);
     }
 
     public void setVector4f(int shaderProgram, String uniformName, Vector4f vector) {
@@ -68,9 +65,6 @@ public class VanillaShaders {
 
         // Set the new value
         GL20.glUniform4f(uniformLocation, vector.x, vector.y, vector.z, vector.w);
-
-        // Stop using the shader program
-//        GL20.glUseProgram(0);
     }
 
     public void setupVanillaShadersClippingPlanes(MinecraftClient client, Camera camera, Vector4f plane) {
@@ -115,18 +109,23 @@ public class VanillaShaders {
         return viewMatrix;
     }
 
-    public void setupWaterShader(MinecraftClient client, int texture) {
+    public void setupWaterShader(MinecraftClient client, int reflectionTexture, int refractionTexture) {
         // Use the shader program
         ShaderProgram sp = client.gameRenderer.getProgram(waterShader);
 
         // Get the uniform location
-        int uniformLocation = GL20.glGetUniformLocation(sp.getGlRef(), "Sampler1");
+        int uniformLocationReflec = GL20.glGetUniformLocation(sp.getGlRef(), "Sampler1");
+        int uniformLocationRefrac = GL20.glGetUniformLocation(sp.getGlRef(), "Sampler3");
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE2);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, reflectionTexture);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE3);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, refractionTexture);
 
         // Set the new value
-        GL20.glUniform1i(uniformLocation, 3);
+        GL20.glUniform1i(uniformLocationReflec, 2);
+        GL20.glUniform1i(uniformLocationRefrac, 3);
 
         // Setup Screen Size
         int screenWidthLoc = GL20.glGetUniformLocation(sp.getGlRef(), "screenWidth");
