@@ -28,9 +28,11 @@ out vec3 toCamera;
 void main() {
     vec3 pos = Position + ChunkOffset;
 
-    vec4 worldPos = InverseViewMat * ModelViewMat * vec4(pos, 1.0);
-    //toCamera = cameraPos - worldPos.xyz;
-    toCamera = cameraPos - (InverseViewMat * ModelViewMat * vec4(Position, 1.0)).xyz;
+//    vec4 worldPos = InverseViewMat * ModelViewMat * vec4(pos, 1.0);
+    vec4 worldPos = ModelViewMat * vec4(pos, 1.0);
+//    toCamera = cameraPos - (ModelViewMat * vec4(pos, 1.0)).xyz;
+    toCamera = vec3(ModelViewMat * vec4(pos, 1.0));
+    //toCamera = cameraPos - (InverseViewMat * ModelViewMat * vec4(pos, 1.0)).xyz;
     gl_Position = ProjMat * ModelViewMat * vec4(pos, 1.0);
 
     vertexDistance = fog_distance(ModelViewMat, pos, FogShape);

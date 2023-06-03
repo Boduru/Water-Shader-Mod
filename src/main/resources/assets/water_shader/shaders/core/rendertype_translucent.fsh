@@ -33,14 +33,16 @@ void main() {
     vec4 refractionColor = texture(Sampler3, refractionCoords);
     vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
 
-    vec3 viewVector = normalize(toCamera);
-    float fresnel = pow(dot(viewVector, vec3(0, 1, 0)), 1);
+//    vec3 viewVector = normalize(toCamera);
+//    float fresnel = pow(dot(viewVector, vec3(0, 1, 0)), 1);
 
-//    float fresnel = clamp(pitch / 90.0 * 1.4f, 0.05f, 0.95f);
+    float fresnel = clamp(pitch / 90.0 * 1.4f, 0.05f, 0.95f);
 
     color = mix(reflectionColor, refractionColor, fresnel);
     color = mix(color, vec4(0.0, 0.2, 0.5, 1.0), 0.2);
 
-    fragColor = fragColor;
+//    color = vec4(viewVector, 1.0);
+//    fragColor = color;
+
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }
