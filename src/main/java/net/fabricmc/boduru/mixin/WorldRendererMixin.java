@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
@@ -21,24 +22,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(WorldRenderer.class)
 public class WorldRendererMixin {
     @Inject(at = @At("HEAD"), method = "render")
-    private void renderHead(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
+    private void setupClippingPlane(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
+        float waterHeight = WaterShaderMod.clipPlane.getHeight();
+        Vector4f plane;
 
         if (client.player != null) {
             if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
-                float waterHeight = WaterShaderMod.clipPlane.getHeight();
-                Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
-                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
-//                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
+                plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
             } else if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
-                float waterHeight = WaterShaderMod.clipPlane.getHeight();
-                Vector4f plane = new Vector4f(0.0f, -1.0f, 0.0f, waterHeight);
-                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
-//                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, camera, plane);
+                plane = new Vector4f(0.0f, -1.0f, 0.0f, waterHeight);
             } else {
-                Vector4f plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
-                WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
+                plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
             }
+
+            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
         }
     }
 
@@ -62,7 +60,7 @@ public class WorldRendererMixin {
     }
 
     @Inject(at = @At("TAIL"), method = "render")
-    private void render(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
+    private void renderToCustomFBO(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
         int width = client.getWindow().getFramebufferWidth();
         int height = client.getWindow().getFramebufferHeight();

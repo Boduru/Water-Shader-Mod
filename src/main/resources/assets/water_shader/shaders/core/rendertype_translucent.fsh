@@ -18,13 +18,14 @@ in float vertexDistance;
 in vec4 vertexColor;
 in vec2 texCoord0;
 in vec4 normal;
-in vec4 clipspace;
+
+uniform float pitch;
+
+in vec3 toCamera;
 
 out vec4 fragColor;
 
 void main() {
-//    vec2 ndc = (clipspace.xy / clipspace.w) / 2.0 + 0.5;
-//    vec2 reflectionCoords = vec2(ndc.x, -ndc.y);
     vec2 reflectionCoords = vec2(gl_FragCoord.x / screenWidth, -gl_FragCoord.y / screenHeight);
     vec2 refractionCoords = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
 
@@ -32,8 +33,14 @@ void main() {
     vec4 refractionColor = texture(Sampler3, refractionCoords);
     vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
 
-    color = reflectionColor;
-    color = mix(refractionColor, reflectionColor, 0.5);
+    vec3 viewVector = normalize(toCamera);
+    float fresnel = pow(dot(viewVector, vec3(0, 1, 0)), 1);
 
+//    float fresnel = clamp(pitch / 90.0 * 1.4f, 0.05f, 0.95f);
+
+    color = mix(reflectionColor, refractionColor, fresnel);
+    color = mix(color, vec4(0.0, 0.2, 0.5, 1.0), 0.2);
+
+    fragColor = fragColor;
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

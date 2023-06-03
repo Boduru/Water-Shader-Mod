@@ -133,5 +133,21 @@ public class VanillaShaders {
 
         int screenHeightLoc = GL20.glGetUniformLocation(sp.getGlRef(), "screenHeight");
         GL20.glUniform1i(screenHeightLoc, client.getWindow().getFramebufferHeight());
+
+        // Set Camera Position
+        if (client.player == null) return;
+        Vector3f cameraPos = client.player.getPos().toVector3f();
+        int cameraPosLoc = GL20.glGetUniformLocation(sp.getGlRef(), "cameraPos");
+        GL20.glUniform3f(cameraPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);
+
+        // Set inverse view matrix
+        Entity camera = client.player;
+        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
+        Matrix4f inverseViewMatrix = viewMatrix.invert();
+        setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
+
+        // Set Pitch
+        int pitchLoc = GL20.glGetUniformLocation(sp.getGlRef(), "pitch");
+        GL20.glUniform1f(pitchLoc, camera.getPitch());
     }
 }
