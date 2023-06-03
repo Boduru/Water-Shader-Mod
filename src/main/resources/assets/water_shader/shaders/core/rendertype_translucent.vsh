@@ -15,24 +15,14 @@ uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
 uniform vec3 ChunkOffset;
 uniform int FogShape;
-uniform vec3 cameraPos;
-uniform mat4 InverseViewMat;
 
 out float vertexDistance;
 out vec4 vertexColor;
 out vec2 texCoord0;
 out vec4 normal;
 
-out vec3 toCamera;
-
 void main() {
     vec3 pos = Position + ChunkOffset;
-
-//    vec4 worldPos = InverseViewMat * ModelViewMat * vec4(pos, 1.0);
-    vec4 worldPos = ModelViewMat * vec4(pos, 1.0);
-//    toCamera = cameraPos - (ModelViewMat * vec4(pos, 1.0)).xyz;
-    toCamera = vec3(ModelViewMat * vec4(pos, 1.0));
-    //toCamera = cameraPos - (InverseViewMat * ModelViewMat * vec4(pos, 1.0)).xyz;
     gl_Position = ProjMat * ModelViewMat * vec4(pos, 1.0);
 
     vertexDistance = fog_distance(ModelViewMat, pos, FogShape);

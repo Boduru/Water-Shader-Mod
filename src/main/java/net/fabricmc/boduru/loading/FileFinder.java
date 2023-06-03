@@ -1,4 +1,4 @@
-package net.fabricmc.boduru.utils;
+package net.fabricmc.boduru.loading;
 
 import org.apache.commons.io.IOUtils;
 

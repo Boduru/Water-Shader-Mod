@@ -20,6 +20,8 @@ import java.util.List;
 public class VanillaShaders {
     private List<String> terrainShaders;
     private String waterShader;
+    private float waveStrength = 0.01f;
+    private float timer = 0.0f;
     public static VanillaShaders Instance;
 
     private VanillaShaders() {
@@ -39,6 +41,11 @@ public class VanillaShaders {
             Instance = new VanillaShaders();
         }
         return Instance;
+    }
+
+    public void updateTimer(float tickDelta) {
+        timer += tickDelta;
+        timer %= 1;
     }
 
     public void setMatrix4f(int shaderProgram, String uniformName, Matrix4f model) {
@@ -109,13 +116,14 @@ public class VanillaShaders {
         return viewMatrix;
     }
 
-    public void setupWaterShader(MinecraftClient client, int reflectionTexture, int refractionTexture) {
+    public void setupWaterShader(MinecraftClient client, int reflectionTexture, int refractionTexture, int dudvmap) {
         // Use the shader program
         ShaderProgram sp = client.gameRenderer.getProgram(waterShader);
 
         // Get the uniform location
-        int uniformLocationReflec = GL20.glGetUniformLocation(sp.getGlRef(), "Sampler1");
-        int uniformLocationRefrac = GL20.glGetUniformLocation(sp.getGlRef(), "Sampler3");
+        int uniformLocationReflec = GL20.glGetUniformLocation(sp.getGlRef(), "reflectionTexture");
+        int uniformLocationRefrac = GL20.glGetUniformLocation(sp.getGlRef(), "refractionTexture");
+        int uniformLocationDUDV = GL20.glGetUniformLocation(sp.getGlRef(), "dudvmap");
 
         GL13.glActiveTexture(GL13.GL_TEXTURE2);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, reflectionTexture);
@@ -123,9 +131,13 @@ public class VanillaShaders {
         GL13.glActiveTexture(GL13.GL_TEXTURE3);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, refractionTexture);
 
+        GL13.glActiveTexture(GL13.GL_TEXTURE4);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, uniformLocationDUDV);
+
         // Set the new value
         GL20.glUniform1i(uniformLocationReflec, 2);
         GL20.glUniform1i(uniformLocationRefrac, 3);
+        GL20.glUniform1i(uniformLocationRefrac, 4);
 
         // Setup Screen Size
         int screenWidthLoc = GL20.glGetUniformLocation(sp.getGlRef(), "screenWidth");
@@ -134,20 +146,17 @@ public class VanillaShaders {
         int screenHeightLoc = GL20.glGetUniformLocation(sp.getGlRef(), "screenHeight");
         GL20.glUniform1i(screenHeightLoc, client.getWindow().getFramebufferHeight());
 
-        // Set Camera Position
-        if (client.player == null) return;
-        Vector3f cameraPos = client.player.getPos().toVector3f();
-        int cameraPosLoc = GL20.glGetUniformLocation(sp.getGlRef(), "cameraPos");
-        GL20.glUniform3f(cameraPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);
-
-        // Set inverse view matrix
-        Entity camera = client.player;
-        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
-        Matrix4f inverseViewMatrix = viewMatrix.invert();
-        setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
-
         // Set Pitch
+        if (client.player == null) return;
+        Entity camera = client.player;
         int pitchLoc = GL20.glGetUniformLocation(sp.getGlRef(), "pitch");
         GL20.glUniform1f(pitchLoc, camera.getPitch());
+
+        // Set distortion variables
+        int waveSpeedLoc = GL20.glGetUniformLocation(sp.getGlRef(), "waveStrength");
+        GL20.glUniform1f(waveSpeedLoc, waveStrength);
+
+        int timerLoc = GL20.glGetUniformLocation(sp.getGlRef(), "timer");
+        GL20.glUniform1f(timerLoc, timer);
     }
 }

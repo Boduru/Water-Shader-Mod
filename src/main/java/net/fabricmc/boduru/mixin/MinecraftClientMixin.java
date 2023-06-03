@@ -12,7 +12,8 @@ public class MinecraftClientMixin {
     @Inject(at = @At("HEAD"), method = "stop()V")
     private void stop(CallbackInfo ci) {
         WaterShaderMod.LOGGER.info("Water Shader Mod Stopped!");
-        WaterShaderMod.FreeBuffers();
+        WaterShaderMod.framebuffers.free();
+        WaterShaderMod.textureLoader.freeTextures();
     }
 
     @Inject(at = @At("TAIL"), method = "Lnet/minecraft/client/MinecraftClient;onResolutionChanged()V")

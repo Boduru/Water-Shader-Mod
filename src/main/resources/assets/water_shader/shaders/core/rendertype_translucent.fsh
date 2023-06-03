@@ -3,8 +3,9 @@
 #moj_import <fog.glsl>
 
 uniform sampler2D Sampler0;
-uniform sampler2D Sampler1;
-uniform sampler2D Sampler3;
+uniform sampler2D reflectionTexture;
+uniform sampler2D refractionTexture;
+uniform sampler2D dudvmap;
 
 uniform vec4 ColorModulator;
 uniform float FogStart;
@@ -20,29 +21,37 @@ in vec2 texCoord0;
 in vec4 normal;
 
 uniform float pitch;
-
-in vec3 toCamera;
+uniform float timer;
+uniform float waveStrength;
 
 out vec4 fragColor;
 
 void main() {
+    // Calculate reflection and refraction texture coordinates (mirror-like effect)
     vec2 reflectionCoords = vec2(gl_FragCoord.x / screenWidth, -gl_FragCoord.y / screenHeight);
     vec2 refractionCoords = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
 
-    vec4 reflectionColor = texture(Sampler1, reflectionCoords);
-    vec4 refractionColor = texture(Sampler3, refractionCoords);
+    // Distortion
+    vec2 distortion = texture(dudvmap, vec2(texCoord0.x + timer * 0.01, texCoord0.y)).rg;
+    distortion = (distortion * 2.0 - 1.0) * waveStrength;
+
+    refractionCoords += distortion;
+    refractionCoords = clamp(refractionCoords, 0.001, 0.009);
+
+    reflectionCoords += distortion;
+    reflectionCoords.x = clamp(reflectionCoords.x, 0.001, 0.009);
+    refractionCoords.y = clamp(refractionCoords.y, -0.009, -0.001);
+
+    // Sample reflection and refraction textures
+    vec4 reflectionColor = texture(reflectionTexture, reflectionCoords);
+    vec4 refractionColor = texture(refractionTexture, refractionCoords);
     vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
 
-//    vec3 viewVector = normalize(toCamera);
-//    float fresnel = pow(dot(viewVector, vec3(0, 1, 0)), 1);
-
-    float fresnel = clamp(pitch / 90.0 * 1.4f, 0.05f, 0.95f);
+    // Calculate fresnel (reflection/refraction mix depending on viewing angle)
+    float fresnel = clamp(pitch / 90.0, 0.3f, 0.7f);
 
     color = mix(reflectionColor, refractionColor, fresnel);
-    color = mix(color, vec4(0.0, 0.2, 0.5, 1.0), 0.2);
-
-//    color = vec4(viewVector, 1.0);
-//    fragColor = color;
+    color = mix(color, vec4(0.0, 0.25, 0.6, 1.0), 0.30);
 
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

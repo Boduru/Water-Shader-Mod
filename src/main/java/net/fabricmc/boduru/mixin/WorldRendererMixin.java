@@ -45,6 +45,7 @@ public class WorldRendererMixin {
         MinecraftClient client = MinecraftClient.getInstance();
         int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
         int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
+        int dudvmapTexture = WaterShaderMod.textureLoader.getTexture("dudvmap");
 
         GL11.glDisable(GL11.GL_BLEND);
 
@@ -55,7 +56,7 @@ public class WorldRendererMixin {
         ShaderProgram currentProgram = client.gameRenderer.getProgram("rendertype_translucent");
 
         if (program == currentProgram.getGlRef()) {
-            WaterShaderMod.vanillaShaders.setupWaterShader(client, reflectionColorTexture, refractionColorTexture);
+            WaterShaderMod.vanillaShaders.setupWaterShader(client, reflectionColorTexture, refractionColorTexture, dudvmapTexture);
         }
     }
 

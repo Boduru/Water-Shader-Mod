@@ -162,6 +162,8 @@ public abstract class GameRendererMixin {
 
             gameRenderer.render(tickDelta, startTime, tick);
             WaterShaderMod.renderPass.nextRenderPass();
+
+            WaterShaderMod.vanillaShaders.updateTimer(tickDelta);
         }
     }
 }

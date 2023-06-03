@@ -2,8 +2,7 @@ package net.fabricmc.boduru.mixin;
 
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.fabricmc.boduru.main.WaterShaderMod;
-import net.fabricmc.boduru.utils.FileFinder;
+import net.fabricmc.boduru.loading.FileFinder;
 import net.minecraft.client.gl.GlImportProcessor;
 import net.minecraft.client.gl.ShaderStage;
 import org.apache.commons.io.IOUtils;
