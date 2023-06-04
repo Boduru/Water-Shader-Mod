@@ -22,11 +22,12 @@ out vec2 texCoord0;
 out vec4 normal;
 
 uniform mat4 InverseViewMat;
+uniform mat4 CustomModelMatrix;
 uniform vec4 plane;
 
 void main() {
     vec3 pos = Position + ChunkOffset;
-    vec4 viewPosition = ModelViewMat * vec4(pos, 1.0);
+    vec4 viewPosition = ModelViewMat * CustomModelMatrix * vec4(pos, 1.0);
 
     gl_ClipDistance[0] = dot(InverseViewMat * ModelViewMat * vec4(pos, 1.0), plane);
 

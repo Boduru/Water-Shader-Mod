@@ -85,9 +85,12 @@ public abstract class GameRendererMixin {
 
                 float pitch = -camera.getPitch();
                 double d = 2 * (client.player.getPos().getY() - WaterShaderMod.clipPlane.getHeight());
+
 //                client.player.setPos(client.player.getPos().getX(), client.player.getPos().getY() - d, client.player.getPos().getZ());
                 client.player.setPitch(pitch);
                 //client.player.setPos(client.player.getPos().getX(), client.player.getPos().getY() - d, client.player.getPos().getZ());
+
+                WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, (float) d, 0);
 
                 // Move camera as well
                 Vec3d cameraPos = camera.getPos();
@@ -95,6 +98,8 @@ public abstract class GameRendererMixin {
                 ((CameraMixin) camera).invokeSetRotation(pitch, ((CameraMixin) camera).getYaw());
 //                ((CameraMixin) camera).invokeSetPos(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ());
             }
+        } else {
+            WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, 0, 0);
         }
 
 //        if (!WaterShaderMod.renderPass.doDrawWater()) {

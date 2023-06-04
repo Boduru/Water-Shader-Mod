@@ -15,10 +15,11 @@ out vec2 texCoord2;
 out vec4 normal;
 
 uniform mat4 InverseViewMat;
+uniform mat4 CustomModelMatrix;
 uniform vec4 plane;
 
 void main() {
-    vec4 viewPosition = ModelViewMat * vec4(Position, 1.0);
+    vec4 viewPosition = ModelViewMat * CustomModelMatrix * vec4(Position, 1.0);
 
     gl_ClipDistance[0] = dot(InverseViewMat * ModelViewMat * vec4(Position, 1.0), plane);
 

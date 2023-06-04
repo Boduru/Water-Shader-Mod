@@ -15,12 +15,13 @@ out vec2 texCoord2;
 out vec4 normal;
 
 uniform mat4 InverseViewMat;
+uniform mat4 CustomModelMatrix;
 uniform vec4 plane;
 
 void main() {
     gl_ClipDistance[0] = dot(InverseViewMat * ModelViewMat * vec4(Position, 1.0), plane);
 
-    gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
+    gl_Position = ProjMat * ModelViewMat * CustomModelMatrix * vec4(Position, 1.0);
 
     vertexColor = Color;
     texCoord0 = UV0;

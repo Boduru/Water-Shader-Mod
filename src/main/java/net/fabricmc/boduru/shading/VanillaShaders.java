@@ -20,7 +20,7 @@ import java.util.List;
 public class VanillaShaders {
     private List<String> terrainShaders;
     private String waterShader;
-    private float waveStrength = 0.01f;
+    private float waveStrength = 0.001f;
     private float timer = 0.0f;
     public static VanillaShaders Instance;
 
@@ -104,6 +104,16 @@ public class VanillaShaders {
         }
     }
 
+    public void setupVanillaShadersModelMatrices(MinecraftClient client, float tx, float ty, float tz) {
+        Matrix4f modelMatrix = createTranslationMatrix(tx, ty, tz);
+
+        for (String shader : terrainShaders) {
+            // Model Matrix
+            ShaderProgram sp = client.gameRenderer.getProgram(shader);
+            setMatrix4f(sp.getGlRef(), "CustomModelMatrix", modelMatrix);
+        }
+    }
+
     public static Matrix4f createViewMatrix(float pitch, float yaw, Vector3f position) {
         Matrix4f viewMatrix = new Matrix4f();
         viewMatrix.identity();
@@ -114,6 +124,15 @@ public class VanillaShaders {
         viewMatrix.translate(negativeCameraPos);
 
         return viewMatrix;
+    }
+
+    public static Matrix4f createTranslationMatrix(float tx, float ty, float tz) {
+        Matrix4f translationMatrix = new Matrix4f();
+        translationMatrix.identity();
+
+        translationMatrix.translate(tx, ty, tz);
+
+        return translationMatrix;
     }
 
     public void setupWaterShader(MinecraftClient client, int reflectionTexture, int refractionTexture, int dudvmap) {
@@ -132,12 +151,12 @@ public class VanillaShaders {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, refractionTexture);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE4);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, uniformLocationDUDV);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, dudvmap);
 
         // Set the new value
         GL20.glUniform1i(uniformLocationReflec, 2);
         GL20.glUniform1i(uniformLocationRefrac, 3);
-        GL20.glUniform1i(uniformLocationRefrac, 4);
+        GL20.glUniform1i(uniformLocationDUDV, 4);
 
         // Setup Screen Size
         int screenWidthLoc = GL20.glGetUniformLocation(sp.getGlRef(), "screenWidth");

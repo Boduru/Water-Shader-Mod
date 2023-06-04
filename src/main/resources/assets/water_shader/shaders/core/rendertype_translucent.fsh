@@ -32,15 +32,15 @@ void main() {
     vec2 refractionCoords = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
 
     // Distortion
-    vec2 distortion = texture(dudvmap, vec2(texCoord0.x + timer * 0.01, texCoord0.y)).rg;
+    vec2 distortion = texture(dudvmap, vec2(texCoord0.x + timer * 0.06, texCoord0.y)).rg;
     distortion = (distortion * 2.0 - 1.0) * waveStrength;
 
-    refractionCoords += distortion;
-    refractionCoords = clamp(refractionCoords, 0.001, 0.009);
-
-    reflectionCoords += distortion;
-    reflectionCoords.x = clamp(reflectionCoords.x, 0.001, 0.009);
-    refractionCoords.y = clamp(refractionCoords.y, -0.009, -0.001);
+//    refractionCoords += distortion;
+//    refractionCoords = clamp(refractionCoords, 0.001, 0.009);
+//
+//    reflectionCoords += distortion;
+//    reflectionCoords.x = clamp(reflectionCoords.x, 0.001, 0.009);
+//    refractionCoords.y = clamp(refractionCoords.y, -0.009, -0.001);
 
     // Sample reflection and refraction textures
     vec4 reflectionColor = texture(reflectionTexture, reflectionCoords);
