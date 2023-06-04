@@ -19,6 +19,7 @@ in float vertexDistance;
 in vec4 vertexColor;
 in vec2 texCoord0;
 in vec4 normal;
+in vec3 worldPos;
 
 uniform float pitch;
 uniform float timer;
@@ -27,6 +28,11 @@ uniform float waveStrength;
 out vec4 fragColor;
 
 void main() {
+    if (worldPos.y > 62) {
+        fragColor = vec4(0.0, 0.25, 0.6, 1.0);
+        return;
+    }
+
     // Calculate reflection and refraction texture coordinates (mirror-like effect)
     vec2 reflectionCoords = vec2(gl_FragCoord.x / screenWidth, -gl_FragCoord.y / screenHeight);
     vec2 refractionCoords = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);

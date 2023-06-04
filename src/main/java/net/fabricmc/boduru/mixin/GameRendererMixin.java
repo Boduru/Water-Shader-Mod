@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
     @Shadow @Final private Camera camera;
+    @Shadow private boolean renderHand;
 
 //    @Inject(at = @At("HEAD"), method = "render")
 //    private void renderHead(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
@@ -90,6 +91,9 @@ public abstract class GameRendererMixin {
                 client.player.setPitch(pitch);
                 //client.player.setPos(client.player.getPos().getX(), client.player.getPos().getY() - d, client.player.getPos().getZ());
 
+                // Do not render hand
+                renderHand = false;
+
                 WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, (float) d, 0);
 
                 // Move camera as well
@@ -99,6 +103,7 @@ public abstract class GameRendererMixin {
 //                ((CameraMixin) camera).invokeSetPos(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ());
             }
         } else {
+            renderHand = true;
             WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, 0, 0);
         }
 
