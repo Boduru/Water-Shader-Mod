@@ -7,4 +7,8 @@ public class CameraSav {
     public float playerPitch;
     public Vec3d cameraPosition;
     public float cameraPitch;
+    public float tiltZ;
+    public float tiltX;
+    public float translateX;
+    public float translateY;
 }

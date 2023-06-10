@@ -8,6 +8,8 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -18,14 +20,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
     @Shadow @Final private Camera camera;
     @Shadow private boolean renderHand;
     @Shadow @Final private MinecraftClient client;
-
-    @Shadow public abstract boolean isRenderingPanorama();
 
     @Inject(at = @At("HEAD"), method = "renderWorld")
     private void PostCameraUpdate(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
@@ -34,37 +35,31 @@ public abstract class GameRendererMixin {
         if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
             if (camera.getFocusedEntity() != null && client.player != null)  {
                 // Saving
-                WaterShaderMod.cameraSav.cameraPitch = camera.getPitch();
-                WaterShaderMod.cameraSav.cameraPosition = camera.getPos();
+                if (!client.player.isSneaking()) {
+                    WaterShaderMod.cameraSav.cameraPitch = camera.getPitch();
+                    WaterShaderMod.cameraSav.cameraPosition = camera.getPos();
 
-                WaterShaderMod.cameraSav.playerPitch = client.player.getPitch();
-                WaterShaderMod.cameraSav.playerPosition = client.player.getPos();
+                    WaterShaderMod.cameraSav.playerPitch = client.player.getPitch();
+                    WaterShaderMod.cameraSav.playerPosition = client.player.getPos();
+                }
 
                 float pitch = -client.player.getPitch();
-
                 client.player.setPitch(pitch);
-//                System.out.println(camera.getPos().getY());
-//                System.out.println(camera.getBlockPos());
-//                System.out.println(client.player.getEyeY());
 
                 // Do not render hand
                 renderHand = false;
 
-                if (client.player.isSneaking()) {
+                double eyeY = camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
 
+                if (client.player.isSneaking()) {
+//                    eyeY += 0.5;// WaterShaderMod.cameraSav.cameraPosition.getY();// - ((CameraMixin)camera).getCameraY();
                 }
 
-//                if (client.gameRenderer.)
-
-//                double eyeY = camera.getPos().getY() - 1.6f;
-//                double eyeY = client.player.getY();
-//                System.out.println(eyeY + " " + (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()) + " " + client.player.getEyeY());
-//                double eyeY = client.player.getEyeY();
-                double eyeY = camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
                 double d = 2 * (eyeY - WaterShaderMod.clipPlane.getHeight());
                 WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, (float) d, 0);
             }
-        } else {
+        }
+        else {
             renderHand = true;
             WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, 0, 0);
         }
@@ -96,9 +91,23 @@ public abstract class GameRendererMixin {
 //            // Do not bob
 //        }
 //        else {
-//            bobView(matrices, tickDelta);
+//            //bobView(matrices, tickDelta);
 //        }
 //    }
+
+    @Inject(method = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
+    private void injected(MatrixStack matrices, float tickDelta, CallbackInfo ci, PlayerEntity playerEntity, float f, float g, float h) {
+        double tiltZ = Math.toDegrees(MathHelper.sin(g * 3.1415927F) * h * 3.0F);
+        double tiltX = Math.toDegrees(Math.abs(MathHelper.cos(g * 3.1415927F - 0.2F) * h) * 5.0F);
+        double translateX = MathHelper.sin(g * 3.1415927F) * h * 0.5F;
+        double translateY = -Math.abs(MathHelper.cos(g * 3.1415927F) * h);
+
+        WaterShaderMod.cameraSav.tiltX = (float) tiltX;
+        WaterShaderMod.cameraSav.tiltZ = (float) tiltZ;
+
+        WaterShaderMod.cameraSav.translateX = (float) translateX;
+        WaterShaderMod.cameraSav.translateY = (float) translateY;
+    }
 
     @Inject(at = @At("TAIL"), method = "render")
     private void renderTail(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {

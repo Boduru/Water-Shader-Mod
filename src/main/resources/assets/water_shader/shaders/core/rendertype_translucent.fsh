@@ -40,14 +40,13 @@ float getDepth() {
 }
 
 void main() {
-
     // Distortion
     float minFrequency = 60;
     float maxFrequency = 30;
     float minDistortionAmount = 0.001;
     float maxDistortionAmount = 0.003;
-    float minwsEffet = 1;
-    float maxwsEffet = 6;
+    float minwsEffet = 1.0;
+    float maxwsEffet = 7.5;
 
     float frequency = mix(minFrequency, maxFrequency, getDepth());
     float distortionAmount = mix(minDistortionAmount, maxDistortionAmount, getDepth());

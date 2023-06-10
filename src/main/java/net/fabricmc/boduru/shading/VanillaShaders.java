@@ -1,5 +1,6 @@
 package net.fabricmc.boduru.shading;
 
+import net.fabricmc.boduru.main.WaterShaderMod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.Camera;
@@ -120,8 +121,18 @@ public class VanillaShaders {
 
         viewMatrix.rotate((float) Math.toRadians(pitch), 1, 0, 0);
         viewMatrix.rotate((float) Math.toRadians(yaw), 0, 1, 0);
+
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
+            viewMatrix.rotate((float) -Math.toRadians(WaterShaderMod.cameraSav.tiltX), 1, 0, 0);
+            viewMatrix.rotate((float) -Math.toRadians(WaterShaderMod.cameraSav.tiltZ), 0, 0, 1);
+        }
+
         Vector3f negativeCameraPos = new Vector3f(-position.x, -position.y, -position.z);
         viewMatrix.translate(negativeCameraPos);
+
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
+            viewMatrix.translate(WaterShaderMod.cameraSav.translateX, WaterShaderMod.cameraSav.translateY, 0.0f);
+        }
 
         return viewMatrix;
     }
