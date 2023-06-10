@@ -45,7 +45,6 @@ public class VanillaShaders {
 
     public void updateTimer(float tickDelta) {
         timer += tickDelta;
-        timer %= 1;
     }
 
     public void setMatrix4f(int shaderProgram, String uniformName, Matrix4f model) {

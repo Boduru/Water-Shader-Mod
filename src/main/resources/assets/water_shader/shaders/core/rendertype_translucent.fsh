@@ -29,24 +29,40 @@ uniform float waveStrength;
 
 out vec4 fragColor;
 
+float getDepth() {
+    float near = 0.1;
+    float far  = 100.0;
+    float z = gl_FragCoord.z * 2.0 - 1.0; // back to NDC
+    float depth = (2.0 * near * far) / (far + near - z * (far - near));
+    depth = depth / far;
+
+    return depth;
+}
+
 void main() {
     // Calculate reflection and refraction texture coordinates (mirror-like effect)
     vec2 reflectionCoords = vec2(gl_FragCoord.x / screenWidth, -gl_FragCoord.y / screenHeight);
     vec2 refractionCoords = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
-//    vec2 ndc = (clipSpace.xy / clipSpace.w) / 2.0 + 0.5;
-//    vec2 reflectionCoords = vec2(ndc.x, -ndc.y);
-//    vec2 refractionCoords = vec2(ndc.x, ndc.y);
 
     // Distortion
-    vec2 distortion = texture(dudvmap, vec2(dudvMapUVCoords.x, dudvMapUVCoords.y)).rg; // + timer * 0.01
-    distortion = (distortion * 2.0 - 1.0) * waveStrength;
-
+//    vec2 distortion = texture(dudvmap, vec2(dudvMapUVCoords.x, dudvMapUVCoords.y)).rg;
+//    distortion = (distortion * 2.0 - 1.0) * waveStrength + timer * 0.01;
+//
 //    refractionCoords += distortion;
 //    refractionCoords = clamp(refractionCoords, 0.005, 0.995);
-
+//
 //    reflectionCoords += distortion;
 //    reflectionCoords.x = clamp(reflectionCoords.x, 0.005, 0.995);
 //    refractionCoords.y = clamp(refractionCoords.y, -0.995, -0.005);
+
+    vec2 uv = gl_FragCoord.xy / vec2(screenWidth, screenHeight);
+    float X = uv.x * 10. + timer * (0.7 - getDepth());
+    float Y = uv.y * 10. + timer * (0.6 - getDepth());
+    uv.y += cos(X + Y) * 0.007 * cos(Y);
+    uv.x += sin(X - Y) * 0.007 * sin(Y);
+
+    reflectionCoords = vec2(uv.x, -uv.y);
+    refractionCoords = uv;
 
     // Sample reflection and refraction textures
     vec4 reflectionColor = texture(reflectionTexture, reflectionCoords);

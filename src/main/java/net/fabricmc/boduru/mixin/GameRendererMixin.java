@@ -15,6 +15,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
@@ -22,6 +24,8 @@ public abstract class GameRendererMixin {
     @Shadow @Final private Camera camera;
     @Shadow private boolean renderHand;
     @Shadow @Final private MinecraftClient client;
+
+    @Shadow public abstract boolean isRenderingPanorama();
 
     @Inject(at = @At("HEAD"), method = "renderWorld")
     private void PostCameraUpdate(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
@@ -45,14 +49,42 @@ public abstract class GameRendererMixin {
 
                 double d = 2 * (client.player.getPos().getY() - WaterShaderMod.clipPlane.getHeight());
                 WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, (float) d, 0);
-                System.out.println(pitch);
-                System.out.println(camera.getPitch());
             }
         } else {
             renderHand = true;
             WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, 0, 0);
         }
     }
+
+//    @Inject(at = @At("HEAD"), method = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V", cancellable = true)
+//    private void UnTiltWaterEffect(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
+//        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
+//            ci.cancel();
+//        }
+//    }
+
+//    @ModifyVariable(method = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V", at = @At("STORE"), ordinal = 2)
+//    private float injected(float h) {
+//        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION || WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
+//            return 0;
+//        }
+//        return h;
+//    }
+
+//    @Shadow
+//    private void bobView(MatrixStack matrices, float tickDelta) {
+//
+//    }
+//
+//    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V"), method = "renderWorld")
+//    private void bob(GameRenderer gameRenderer, MatrixStack matrices, float tickDelta) {
+//        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION || WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
+//            // Do not bob
+//        }
+//        else {
+//            bobView(matrices, tickDelta);
+//        }
+//    }
 
     @Inject(at = @At("TAIL"), method = "render")
     private void renderTail(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
