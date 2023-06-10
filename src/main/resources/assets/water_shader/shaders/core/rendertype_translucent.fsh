@@ -31,7 +31,7 @@ out vec4 fragColor;
 
 float getDepth() {
     float near = 0.1;
-    float far  = 100.0;
+    float far  = 1000.0;
     float z = gl_FragCoord.z * 2.0 - 1.0; // back to NDC
     float depth = (2.0 * near * far) / (far + near - z * (far - near));
     depth = depth / far;
@@ -45,21 +45,22 @@ void main() {
     vec2 refractionCoords = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
 
     // Distortion
-//    vec2 distortion = texture(dudvmap, vec2(dudvMapUVCoords.x, dudvMapUVCoords.y)).rg;
-//    distortion = (distortion * 2.0 - 1.0) * waveStrength + timer * 0.01;
-//
-//    refractionCoords += distortion;
-//    refractionCoords = clamp(refractionCoords, 0.005, 0.995);
-//
-//    reflectionCoords += distortion;
-//    reflectionCoords.x = clamp(reflectionCoords.x, 0.005, 0.995);
-//    refractionCoords.y = clamp(refractionCoords.y, -0.995, -0.005);
+    float minFrequency = 60;
+    float maxFrequency = 30;
+    float minDistortionAmount = 0.001;
+    float maxDistortionAmount = 0.003;
+    float minwsEffet = 1;
+    float maxwsEffet = 6;
+
+    float frequency = mix(minFrequency, maxFrequency, getDepth());
+    float distortionAmount = mix(minDistortionAmount, maxDistortionAmount, getDepth());
+    float wsEffet = mix(minwsEffet, maxwsEffet, getDepth());
 
     vec2 uv = gl_FragCoord.xy / vec2(screenWidth, screenHeight);
-    float X = uv.x * 10. + timer * (0.7 - getDepth());
-    float Y = uv.y * 10. + timer * (0.6 - getDepth());
-    uv.y += cos(X + Y) * 0.007 * cos(Y);
-    uv.x += sin(X - Y) * 0.007 * sin(Y);
+    float X = uv.x * frequency + timer * 0.05;
+    float Y = uv.y * frequency + timer * 0.05;
+    uv.y += cos(X + Y) * distortionAmount * cos(Y * wsEffet);
+    uv.x += sin(X - Y) * distortionAmount * sin(Y * wsEffet);
 
     reflectionCoords = vec2(uv.x, -uv.y);
     refractionCoords = uv;
@@ -74,7 +75,7 @@ void main() {
 
     //reflectionColor = mix(reflectionColor, vec4(0.010, 0.010, 0.43, 1.0), 0.3);
     vec4 color = mix(reflectionColor, refractionColor, fresnel);
-    color = mix(color, vec4(0.010, 0.010, 0.43, 1.0), 0.5);
+    color = mix(color, vec4(0.001, 0.0003, 0.3, 0.85), 0.5);
 
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }
