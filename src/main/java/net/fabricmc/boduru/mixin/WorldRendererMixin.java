@@ -33,7 +33,7 @@ public class WorldRendererMixin {
             } else if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
                 plane = new Vector4f(0.0f, -1.0f, 0.0f, waterHeight);
             } else {
-                plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
+                plane = new Vector4f(0.0f, -1.0f, 0.0f, 1024f);
             }
 
             WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);

@@ -19,7 +19,9 @@ in float vertexDistance;
 in vec4 vertexColor;
 in vec2 texCoord0;
 in vec4 normal;
-in vec3 worldPos;
+in vec4 worldPos;
+in vec2 dudvMapUVCoords;
+in vec4 clipSpace;
 
 uniform float pitch;
 uniform float timer;
@@ -28,36 +30,35 @@ uniform float waveStrength;
 out vec4 fragColor;
 
 void main() {
-    if (worldPos.y > 62) {
-        fragColor = vec4(0.0, 0.25, 0.6, 1.0);
-        return;
-    }
-
     // Calculate reflection and refraction texture coordinates (mirror-like effect)
     vec2 reflectionCoords = vec2(gl_FragCoord.x / screenWidth, -gl_FragCoord.y / screenHeight);
     vec2 refractionCoords = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
+//    vec2 ndc = (clipSpace.xy / clipSpace.w) / 2.0 + 0.5;
+//    vec2 reflectionCoords = vec2(ndc.x, -ndc.y);
+//    vec2 refractionCoords = vec2(ndc.x, ndc.y);
 
     // Distortion
-    vec2 distortion = texture(dudvmap, vec2(texCoord0.x + timer * 0.06, texCoord0.y)).rg;
+    vec2 distortion = texture(dudvmap, vec2(dudvMapUVCoords.x, dudvMapUVCoords.y)).rg; // + timer * 0.01
     distortion = (distortion * 2.0 - 1.0) * waveStrength;
 
 //    refractionCoords += distortion;
-//    refractionCoords = clamp(refractionCoords, 0.001, 0.009);
-//
+//    refractionCoords = clamp(refractionCoords, 0.005, 0.995);
+
 //    reflectionCoords += distortion;
-//    reflectionCoords.x = clamp(reflectionCoords.x, 0.001, 0.009);
-//    refractionCoords.y = clamp(refractionCoords.y, -0.009, -0.001);
+//    reflectionCoords.x = clamp(reflectionCoords.x, 0.005, 0.995);
+//    refractionCoords.y = clamp(refractionCoords.y, -0.995, -0.005);
 
     // Sample reflection and refraction textures
     vec4 reflectionColor = texture(reflectionTexture, reflectionCoords);
     vec4 refractionColor = texture(refractionTexture, refractionCoords);
-    vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
+    //vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
 
     // Calculate fresnel (reflection/refraction mix depending on viewing angle)
-    float fresnel = clamp(pitch / 90.0, 0.3f, 0.7f);
+    float fresnel = clamp(pitch / 90.0, 0.2f, 0.45f);
 
-    color = mix(reflectionColor, refractionColor, fresnel);
-    color = mix(color, vec4(0.0, 0.25, 0.6, 1.0), 0.30);
+    //reflectionColor = mix(reflectionColor, vec4(0.010, 0.010, 0.43, 1.0), 0.3);
+    vec4 color = mix(reflectionColor, refractionColor, fresnel);
+    color = mix(color, vec4(0.010, 0.010, 0.43, 1.0), 0.5);
 
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

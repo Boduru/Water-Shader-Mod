@@ -20,7 +20,7 @@ import java.util.List;
 public class VanillaShaders {
     private List<String> terrainShaders;
     private String waterShader;
-    private float waveStrength = 0.001f;
+    private float waveStrength = 0.02f;
     private float timer = 0.0f;
     public static VanillaShaders Instance;
 

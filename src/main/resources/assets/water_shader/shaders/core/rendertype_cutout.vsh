@@ -28,9 +28,9 @@ uniform vec4 plane;
 void main() {
     vec3 pos = Position + ChunkOffset;
 
-    gl_ClipDistance[0] = dot(InverseViewMat * ModelViewMat * vec4(pos, 1.0), plane);
+    gl_ClipDistance[0] = dot(InverseViewMat * ModelViewMat * CustomModelMatrix * vec4(pos, 1.0), plane);
 
-    gl_Position = ProjMat * ModelViewMat * CustomModelMatrix * vec4(pos, 1.0);
+    gl_Position = ProjMat * ModelViewMat * vec4(pos, 1.0);
 
     vertexDistance = fog_distance(ModelViewMat, pos, FogShape);
     vertexColor = Color * minecraft_sample_lightmap(Sampler2, UV2);
