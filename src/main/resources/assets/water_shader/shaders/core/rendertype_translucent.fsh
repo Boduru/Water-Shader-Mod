@@ -40,9 +40,6 @@ float getDepth() {
 }
 
 void main() {
-    // Calculate reflection and refraction texture coordinates (mirror-like effect)
-    vec2 reflectionCoords = vec2(gl_FragCoord.x / screenWidth, -gl_FragCoord.y / screenHeight);
-    vec2 refractionCoords = vec2(gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight);
 
     // Distortion
     float minFrequency = 60;
@@ -62,13 +59,13 @@ void main() {
     uv.y += cos(X + Y) * distortionAmount * cos(Y * wsEffet);
     uv.x += sin(X - Y) * distortionAmount * sin(Y * wsEffet);
 
-    reflectionCoords = vec2(uv.x, -uv.y);
-    refractionCoords = uv;
+    // Calculate reflection and refraction texture coordinates
+    vec2 reflectionCoords = vec2(uv.x, -uv.y);
+    vec2 refractionCoords = uv;
 
     // Sample reflection and refraction textures
     vec4 reflectionColor = texture(reflectionTexture, reflectionCoords);
     vec4 refractionColor = texture(refractionTexture, refractionCoords);
-    //vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
 
     // Calculate fresnel (reflection/refraction mix depending on viewing angle)
     float fresnel = clamp(pitch / 90.0, 0.2f, 0.45f);

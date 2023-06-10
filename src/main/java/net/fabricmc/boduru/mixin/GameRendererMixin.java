@@ -43,11 +43,25 @@ public abstract class GameRendererMixin {
                 float pitch = -client.player.getPitch();
 
                 client.player.setPitch(pitch);
+//                System.out.println(camera.getPos().getY());
+//                System.out.println(camera.getBlockPos());
+//                System.out.println(client.player.getEyeY());
 
                 // Do not render hand
                 renderHand = false;
 
-                double d = 2 * (client.player.getPos().getY() - WaterShaderMod.clipPlane.getHeight());
+                if (client.player.isSneaking()) {
+
+                }
+
+//                if (client.gameRenderer.)
+
+//                double eyeY = camera.getPos().getY() - 1.6f;
+//                double eyeY = client.player.getY();
+//                System.out.println(eyeY + " " + (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()) + " " + client.player.getEyeY());
+//                double eyeY = client.player.getEyeY();
+                double eyeY = camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
+                double d = 2 * (eyeY - WaterShaderMod.clipPlane.getHeight());
                 WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, (float) d, 0);
             }
         } else {

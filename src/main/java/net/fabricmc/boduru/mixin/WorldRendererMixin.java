@@ -9,6 +9,7 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -36,7 +37,12 @@ public class WorldRendererMixin {
                 plane = new Vector4f(0.0f, -1.0f, 0.0f, 256f);
             }
 
-            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
+            float pitch = client.gameRenderer.getCamera().getPitch();
+            float yaw = client.gameRenderer.getCamera().getYaw();
+            double eyeY = camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
+            Vector3f pos = new Vector3f((float) client.player.getX(), (float) eyeY, (float) client.player.getZ());
+            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, pitch, yaw, pos, plane);
+//            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, gameRenderer.getCamera(), plane);
         }
     }
 

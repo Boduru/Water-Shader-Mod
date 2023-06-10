@@ -88,9 +88,10 @@ public class VanillaShaders {
         }
     }
 
-    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Entity camera, Vector4f plane) {
+    public void setupVanillaShadersClippingPlanes(MinecraftClient client, float pitch, float yaw, Vector3f pos, Vector4f plane) {
         // Calculate Inverse View Matrix
-        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
+//        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getEyePos().toVector3f());
+        Matrix4f viewMatrix = createViewMatrix(pitch, yaw, pos);
         Matrix4f inverseViewMatrix = viewMatrix.invert();
 
         for (String shader : terrainShaders) {
