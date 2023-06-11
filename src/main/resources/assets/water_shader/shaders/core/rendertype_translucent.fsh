@@ -53,11 +53,11 @@ float mapRange(float x, float a, float b, float c, float d) {
 void main() {
     // Distortion
     float minFrequency = 55;
-    float maxFrequency = 25;
+    float maxFrequency = 20;
     float minDistortionAmount = 0.001;
     float maxDistortionAmount = 0.005;
     float minwsEffet = 1.0;
-    float maxwsEffet = 7.7;
+    float maxwsEffet = 7.9;
 
     float frequency = mix(minFrequency, maxFrequency, getDepth());
     float distortionAmount = mix(minDistortionAmount, maxDistortionAmount, getDepth());
@@ -76,8 +76,10 @@ void main() {
     vec2 refractionCoords = uv;
 
     // Sample reflection and refraction textures
-    vec4 reflectionColor = texture(reflectionTexture, reflectionCoords) * 0.75;
+    vec4 reflectionColor = texture(reflectionTexture, reflectionCoords) * 0.70;
     vec4 refractionColor = texture(refractionTexture, refractionCoords);
+
+    reflectionColor.a = 0.7;
 
     // Calculate fresnel (reflection/refraction mix depending on viewing angle)
     //float fresnel = clamp(pitch / 90.0, 0.25f, 0.55f);

@@ -49,6 +49,10 @@ public abstract class GameRendererMixin {
                 // Do not render hand
                 renderHand = false;
 
+                if (camera.isThirdPerson()) {
+                    client.player.setInvisible(true);
+                }
+
                 double eyeY = camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
 
                 if (client.player.isSneaking()) {
@@ -64,42 +68,17 @@ public abstract class GameRendererMixin {
         }
         else {
             renderHand = true;
+
+            if (client.player != null) {
+                client.player.setInvisible(false);
+            }
+
             WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, 0, 0);
         }
     }
 
-//    @Inject(at = @At("HEAD"), method = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V", cancellable = true)
-//    private void UnTiltWaterEffect(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
-//        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
-//            ci.cancel();
-//        }
-//    }
-
-//    @ModifyVariable(method = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V", at = @At("STORE"), ordinal = 2)
-//    private float injected(float h) {
-//        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION || WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
-//            return 0;
-//        }
-//        return h;
-//    }
-
-//    @Shadow
-//    private void bobView(MatrixStack matrices, float tickDelta) {
-//
-//    }
-//
-//    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V"), method = "renderWorld")
-//    private void bob(GameRenderer gameRenderer, MatrixStack matrices, float tickDelta) {
-//        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION || WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
-//            // Do not bob
-//        }
-//        else {
-//            //bobView(matrices, tickDelta);
-//        }
-//    }
-
     @Inject(method = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void injected(MatrixStack matrices, float tickDelta, CallbackInfo ci, PlayerEntity playerEntity, float f, float g, float h) {
+    private void getBobViewParams(MatrixStack matrices, float tickDelta, CallbackInfo ci, PlayerEntity playerEntity, float f, float g, float h) {
         double tiltZ = Math.toDegrees(MathHelper.sin(g * 3.1415927F) * h * 3.0F);
         double tiltX = Math.toDegrees(Math.abs(MathHelper.cos(g * 3.1415927F - 0.2F) * h) * 5.0F);
         double translateX = MathHelper.sin(g * 3.1415927F) * h * 0.5F;

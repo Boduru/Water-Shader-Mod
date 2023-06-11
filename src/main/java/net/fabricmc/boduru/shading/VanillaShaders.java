@@ -183,7 +183,7 @@ public class VanillaShaders {
 
         // Set Custom Sneaking Offset Matrix
         float diffY = WaterShaderMod.cameraSav.cameraEyeYNoSneak - WaterShaderMod.cameraSav.cameraEyeYSneak;
-        Matrix4f customSneakingOffsetMatrix = createTranslationMatrix(0.0f, -diffY, 0.0f);
+        Matrix4f customSneakingOffsetMatrix = createTranslationMatrix(0.0f, diffY, 0.0f);
 
         customSneakingOffsetMatrix = customSneakingOffsetMatrix.identity();
 
