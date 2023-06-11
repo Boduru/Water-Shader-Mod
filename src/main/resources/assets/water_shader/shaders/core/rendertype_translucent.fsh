@@ -22,10 +22,12 @@ in vec4 normal;
 in vec4 worldPos;
 in vec2 dudvMapUVCoords;
 in vec4 clipSpace;
+in mat4 InverseProjMatrix;
 
 uniform float pitch;
 uniform float timer;
 uniform float waveStrength;
+uniform mat4 InverseViewMatrix;
 
 out vec4 fragColor;
 
@@ -73,5 +75,44 @@ void main() {
     vec4 color = mix(reflectionColor, refractionColor, fresnel);
     color = mix(color, vec4(0.001, 0.0003, 0.3, 0.85), 0.5);
 
+    if (worldPos.y > 62) {
+        color = vec4(0, 0, 1, 1);
+    }
+    else {
+        color = vec4(0, 1, 0, 1);
+    }
+
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+
+//    color = vec4(vec3(worldPos.y), 1.0);
+//    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+
+//    vec4 ndc = vec4(
+//    (gl_FragCoord.x / screenWidth - 0.5) * 2.0,
+//    (gl_FragCoord.y / screenHeight - 0.5) * 2.0,
+//    (gl_FragCoord.z - 0.5) * 2.0,
+//    1.0);
+
+//    if (worldPos.y < 1.0) {
+//        color = vec4(1.0, 0.0, 0.0, 1.0);
+//    }
+//    else {
+//        color = vec4(0.0, 1.0, 0.0, 1.0);
+//    }
+
+    //color = vec4(vec3(abs(worldPos.y)), 1.0);
+
+    // Convert NDC throuch inverse clip coordinates to view coordinates
+    //vec4 clip = InverseProjMatrix * ndc;
+//    vec3 vertex = (clip / clip.w).xyz;
+
+//    color = vec4(vertex, 1.0);
+//    if (vertex.x > 2)
+//        fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+//    else if (vertex.x < -2)
+//        fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+
+//    color = vec4(1.0, 0.0, 0.0, 1.0);
+    //fragColor = color;
+    //fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }
