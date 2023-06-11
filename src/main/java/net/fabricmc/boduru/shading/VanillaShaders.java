@@ -175,7 +175,8 @@ public class VanillaShaders {
         // Set Inverse View Matrix
         if (client.player == null) return;
         Camera camera = client.gameRenderer.getCamera();
-        Vector3f cameraPos = new Vector3f((float) camera.getPos().getX(), (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()), (float) camera.getPos().getZ());
+        float eyeY = (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()); // (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY())
+        Vector3f cameraPos = new Vector3f((float) camera.getPos().getX(), eyeY, (float) camera.getPos().getZ());
 
         Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), cameraPos);
         Matrix4f inverseViewMatrix = viewMatrix.invert();

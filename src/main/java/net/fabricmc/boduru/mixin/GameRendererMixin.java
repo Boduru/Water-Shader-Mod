@@ -53,7 +53,9 @@ public abstract class GameRendererMixin {
                     client.player.setInvisible(true);
                 }
 
-                double eyeY = camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
+                double eyeY = (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()); // camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
+
+//                System.out.println(eyeY + " " + client.player.getEyeY());
 
                 if (client.player.isSneaking()) {
                     WaterShaderMod.cameraSav.cameraEyeYSneak = ((CameraMixin)camera).getCameraY();
@@ -89,6 +91,21 @@ public abstract class GameRendererMixin {
 
         WaterShaderMod.cameraSav.translateX = (float) translateX;
         WaterShaderMod.cameraSav.translateY = (float) translateY;
+    }
+
+    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setInverseViewRotationMatrix(Lorg/joml/Matrix3f;)V"))
+    private void i(float tickDelta, long limitTime, MatrixStack matrices, CallbackInfo ci) {
+        //WaterShaderMod.cameraSav.inverseViewMatrix = matrices.peek().getNormalMatrix().invert();
+//        matrices.peek().getPositionMatrix().sub(WaterShaderMod.vanillaShaders
+    }
+
+    @Shadow private void bobView(MatrixStack matrices, float tickDelta) {
+    }
+    @Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V"))
+    private void renderBobView(GameRenderer instance, MatrixStack matrices, float tickDelta) {
+//        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.WATER) {
+//            //bobView(matrices, tickDelta);
+//        }
     }
 
     @Inject(at = @At("TAIL"), method = "render")

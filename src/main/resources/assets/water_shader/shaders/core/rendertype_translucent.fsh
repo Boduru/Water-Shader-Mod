@@ -49,7 +49,6 @@ float mapRange(float x, float a, float b, float c, float d) {
     return c + (d - c) * (x - a) / (b - a);
 }
 
-
 void main() {
     // Distortion
     float minFrequency = 55;
@@ -62,7 +61,6 @@ void main() {
     float frequency = mix(minFrequency, maxFrequency, getDepth());
     float distortionAmount = mix(minDistortionAmount, maxDistortionAmount, getDepth());
     float wsEffet = mix(minwsEffet, maxwsEffet, getDepth());
-
 
     //vec2 uv = gl_FragCoord.xy / vec2(screenWidth, screenHeight);
     vec2 uv = (clipSpace.xy / clipSpace.w) / 2.0 + 0.5;
@@ -79,7 +77,7 @@ void main() {
     vec4 reflectionColor = texture(reflectionTexture, reflectionCoords) * 0.70;
     vec4 refractionColor = texture(refractionTexture, refractionCoords);
 
-    reflectionColor.a = 0.7;
+    reflectionColor.a = 0.5;
 
     // Calculate fresnel (reflection/refraction mix depending on viewing angle)
     //float fresnel = clamp(pitch / 90.0, 0.25f, 0.55f);
