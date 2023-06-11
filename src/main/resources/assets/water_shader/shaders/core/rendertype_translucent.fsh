@@ -71,48 +71,19 @@ void main() {
     // Calculate fresnel (reflection/refraction mix depending on viewing angle)
     float fresnel = clamp(pitch / 90.0, 0.2f, 0.45f);
 
+    if (worldPos.y > 63.0 || worldPos.y < 60.0) {
+        // Use reflection only
+        fresnel = 1.0;
+    }
+
     //reflectionColor = mix(reflectionColor, vec4(0.010, 0.010, 0.43, 1.0), 0.3);
+
     vec4 color = mix(reflectionColor, refractionColor, fresnel);
     color = mix(color, vec4(0.001, 0.0003, 0.3, 0.85), 0.5);
 
-    if (worldPos.y > 62) {
-        color = vec4(0, 0, 1, 1);
-    }
-    else {
-        color = vec4(0, 1, 0, 1);
-    }
+//    if (worldPos.y > 61.3 || worldPos.y < 61.0) {
+//        color = mix(refractionColor, vec4(0.001, 0.0003, 0.3, 0.85), 0.5);
+//    }
 
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
-
-//    color = vec4(vec3(worldPos.y), 1.0);
-//    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
-
-//    vec4 ndc = vec4(
-//    (gl_FragCoord.x / screenWidth - 0.5) * 2.0,
-//    (gl_FragCoord.y / screenHeight - 0.5) * 2.0,
-//    (gl_FragCoord.z - 0.5) * 2.0,
-//    1.0);
-
-//    if (worldPos.y < 1.0) {
-//        color = vec4(1.0, 0.0, 0.0, 1.0);
-//    }
-//    else {
-//        color = vec4(0.0, 1.0, 0.0, 1.0);
-//    }
-
-    //color = vec4(vec3(abs(worldPos.y)), 1.0);
-
-    // Convert NDC throuch inverse clip coordinates to view coordinates
-    //vec4 clip = InverseProjMatrix * ndc;
-//    vec3 vertex = (clip / clip.w).xyz;
-
-//    color = vec4(vertex, 1.0);
-//    if (vertex.x > 2)
-//        fragColor = vec4(1.0, 0.0, 0.0, 1.0);
-//    else if (vertex.x < -2)
-//        fragColor = vec4(0.0, 1.0, 0.0, 1.0);
-
-//    color = vec4(1.0, 0.0, 0.0, 1.0);
-    //fragColor = color;
-    //fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

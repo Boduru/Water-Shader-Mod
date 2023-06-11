@@ -32,7 +32,8 @@ public class WorldRendererMixin {
             if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
                 plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
             } else if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
-                plane = new Vector4f(0.0f, -1.0f, 0.0f, waterHeight);
+//                plane = new Vector4f(0.0f, -1.0f, 0.0f, waterHeight);
+                plane = new Vector4f(0.0f, -1.0f, 0.0f, 256);
             } else {
                 plane = new Vector4f(0.0f, -1.0f, 0.0f, 256f);
             }
