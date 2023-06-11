@@ -5,6 +5,7 @@ import net.fabricmc.boduru.shading.Framebuffers;
 import net.fabricmc.boduru.shading.RenderPass;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -18,6 +19,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -40,7 +42,7 @@ public class WorldRendererMixin {
 
             float pitch = client.gameRenderer.getCamera().getPitch();
             float yaw = client.gameRenderer.getCamera().getYaw();
-            double eyeY = camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
+            double eyeY = camera.getPos().getY() - ((CameraMixin) camera).getCameraY();
 
             if (client.player.isSneaking()) {
 //                eyeY += 0.5; WaterShaderMod.cameraSav.cameraPosition.getY();// - ((CameraMixin)camera).getCameraY();
@@ -85,8 +87,7 @@ public class WorldRendererMixin {
 
         if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
             Framebuffers.CopyFrameBufferTexture(width, height, minecraftFBO, reflectionFBO);
-        }
-        else if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
+        } else if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
             Framebuffers.CopyFrameBufferTexture(width, height, minecraftFBO, refractionFBO);
         }
     }
@@ -111,5 +112,22 @@ public class WorldRendererMixin {
         }
 
         return vec3d;
+    }
+
+    @Redirect(method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/render/Camera;ZLjava/lang/Runnable;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/VertexBuffer;draw(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/gl/ShaderProgram;)V",
+                    ordinal = 1))
+    public void redirectDrawStars(VertexBuffer instance, Matrix4f viewMatrix, Matrix4f projectionMatrix, ShaderProgram program) {
+        if (WaterShaderMod.renderPass.getCurrentPass() != RenderPass.Pass.REFLECTION) {
+            instance.draw(viewMatrix, projectionMatrix, program);
+        }
+    }
+
+    @Redirect(method = "render",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FDDD)V"))
+    public void redirectDrawClouds(WorldRenderer instance, MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, double d, double e, double f) {
+        if (WaterShaderMod.renderPass.getCurrentPass() != RenderPass.Pass.REFLECTION) {
+            instance.renderClouds(matrices, projectionMatrix, tickDelta, d, e, f);
+        }
     }
 }

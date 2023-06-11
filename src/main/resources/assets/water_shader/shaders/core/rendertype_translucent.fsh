@@ -21,6 +21,7 @@ in vec2 texCoord0;
 in vec4 normal;
 in vec4 worldPos;
 in vec2 dudvMapUVCoords;
+in vec4 clipSpace;
 
 uniform float pitch;
 uniform float timer;
@@ -55,7 +56,9 @@ void main() {
     float distortionAmount = mix(minDistortionAmount, maxDistortionAmount, getDepth());
     float wsEffet = mix(minwsEffet, maxwsEffet, getDepth());
 
-    vec2 uv = gl_FragCoord.xy / vec2(screenWidth, screenHeight);
+
+    //vec2 uv = gl_FragCoord.xy / vec2(screenWidth, screenHeight);
+    vec2 uv = (clipSpace.xy / clipSpace.w) / 2.0 + 0.5;
     float X = uv.x * frequency + timer * 0.05;
     float Y = uv.y * frequency + timer * 0.05;
     uv.y += cos(X + Y) * distortionAmount * cos(Y * wsEffet);
@@ -70,19 +73,17 @@ void main() {
     vec4 refractionColor = texture(refractionTexture, refractionCoords);
 
     // Calculate fresnel (reflection/refraction mix depending on viewing angle)
-    float fresnel = clamp(pitch / 90.0, 0.2f, 0.45f);
+    float fresnel = clamp(pitch / 90.0, 0.25f, 0.55f);
     vec4 waterTint = vec4(240, 248, 255, 30);
 
     if (worldPos.y > 61.4 || worldPos.y < 60.0) {
         // Use reflection only
         // fresnel = 1.0;
-        reflectionColor = vec4(skyColor, 0.2);
+        reflectionColor = vec4(skyColor, 0.08);
     }
 
     vec4 color = mix(reflectionColor, refractionColor, fresnel);
-    color = mix(color, rgb_to_glsl(waterTint), 0.13);
-
-    color = vec4(ColorModulator.rgb, 1.0);
+    color = mix(color, rgb_to_glsl(waterTint), 0.08);
 
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

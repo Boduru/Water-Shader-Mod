@@ -119,8 +119,8 @@ public class VanillaShaders {
         viewMatrix.rotate((float) Math.toRadians(yaw), 0, 1, 0);
 
 //        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
-//            viewMatrix.rotate((float) -Math.toRadians(WaterShaderMod.cameraSav.tiltX), 1, 0, 0);
-//            viewMatrix.rotate((float) -Math.toRadians(WaterShaderMod.cameraSav.tiltZ), 0, 0, 1);
+//            viewMatrix.rotate((float) Math.toRadians(WaterShaderMod.cameraSav.tiltX), 1, 0, 0);
+//            viewMatrix.rotate((float) Math.toRadians(WaterShaderMod.cameraSav.tiltZ), 0, 0, 1);
 //        }
 
         Vector3f negativeCameraPos = new Vector3f(-position.x, -position.y, -position.z);
