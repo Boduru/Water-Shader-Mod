@@ -36,7 +36,7 @@ public class WaterShaderMod implements ModInitializer {
         textureLoader = new TextureLoader();
 
         // Initialize clip plane
-        clipPlane.setHeight(61.36f);
+        clipPlane.setHeight(61.34f);
     }
 
     public static void InitContext() {

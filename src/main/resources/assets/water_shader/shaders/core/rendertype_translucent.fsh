@@ -22,6 +22,7 @@ in vec4 normal;
 in vec4 worldPos;
 in vec2 dudvMapUVCoords;
 in vec4 clipSpace;
+in vec3 toCameraVector;
 
 uniform float pitch;
 uniform float timer;
@@ -43,14 +44,20 @@ vec4 rgb_to_glsl(vec4 rgb) {
     return rgb / 255.0;
 }
 
+float mapRange(float x, float a, float b, float c, float d) {
+    // Map x from range [a, b] to range [c, d]
+    return c + (d - c) * (x - a) / (b - a);
+}
+
+
 void main() {
     // Distortion
-    float minFrequency = 60;
-    float maxFrequency = 30;
+    float minFrequency = 55;
+    float maxFrequency = 25;
     float minDistortionAmount = 0.001;
-    float maxDistortionAmount = 0.003;
+    float maxDistortionAmount = 0.005;
     float minwsEffet = 1.0;
-    float maxwsEffet = 7.5;
+    float maxwsEffet = 7.7;
 
     float frequency = mix(minFrequency, maxFrequency, getDepth());
     float distortionAmount = mix(minDistortionAmount, maxDistortionAmount, getDepth());
@@ -69,21 +76,29 @@ void main() {
     vec2 refractionCoords = uv;
 
     // Sample reflection and refraction textures
-    vec4 reflectionColor = texture(reflectionTexture, reflectionCoords);
+    vec4 reflectionColor = texture(reflectionTexture, reflectionCoords) * 0.75;
     vec4 refractionColor = texture(refractionTexture, refractionCoords);
 
     // Calculate fresnel (reflection/refraction mix depending on viewing angle)
-    float fresnel = clamp(pitch / 90.0, 0.25f, 0.55f);
+    //float fresnel = clamp(pitch / 90.0, 0.25f, 0.55f);
+    vec3 viewVector = normalize(toCameraVector);
+    //float reflectionDamper = clamp(vertexDistance / 6.0, 0.0, 0.8);
+    float reflectionFactor = clamp(dot(viewVector, vec3(0, 1, 0)), 0.2, 0.8);
     vec4 waterTint = vec4(240, 248, 255, 30);
 
     if (worldPos.y > 61.4 || worldPos.y < 60.0) {
-        // Use reflection only
-        // fresnel = 1.0;
-        reflectionColor = vec4(skyColor, 0.08);
+        // Use refraction only
+//        reflectionFactor = 0.0;
+        //reflectionColor = mix(refractionColor, vec4(skyColor, 0.08), abs(61.3 - worldPos.y) / 61.3);
+        float yLimit = 62.6;
+        float y = worldPos.y;
+        //reflectionFactor = mix(0.0, 1.0, 1 - min((yLimit - y) / yLimit, 1.0));
+        reflectionFactor = clamp(mapRange(y, 61.3, 62.0, 0.0, 1.0), 0.0, 0.8);
+        reflectionColor = mix(refractionColor, vec4(skyColor, 0.08), reflectionFactor);
     }
 
-    vec4 color = mix(reflectionColor, refractionColor, fresnel);
-    color = mix(color, rgb_to_glsl(waterTint), 0.08);
+    vec4 color = mix(reflectionColor, refractionColor, reflectionFactor);
+    //color = mix(color, rgb_to_glsl(waterTint), 0.08);
 
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

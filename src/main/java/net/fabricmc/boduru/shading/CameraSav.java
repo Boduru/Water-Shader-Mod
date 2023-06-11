@@ -13,4 +13,6 @@ public class CameraSav {
     public float translateX;
     public float translateY;
     public Vector3f skyColor;
+    public float cameraEyeYNoSneak;
+    public float cameraEyeYSneak;
 }

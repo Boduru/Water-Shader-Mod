@@ -52,7 +52,10 @@ public abstract class GameRendererMixin {
                 double eyeY = camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
 
                 if (client.player.isSneaking()) {
+                    WaterShaderMod.cameraSav.cameraEyeYSneak = ((CameraMixin)camera).getCameraY();
 //                    eyeY += 0.5;// WaterShaderMod.cameraSav.cameraPosition.getY();// - ((CameraMixin)camera).getCameraY();
+                } else {
+                    WaterShaderMod.cameraSav.cameraEyeYNoSneak = ((CameraMixin)camera).getCameraY();
                 }
 
                 double d = 2 * (eyeY - WaterShaderMod.clipPlane.getY());

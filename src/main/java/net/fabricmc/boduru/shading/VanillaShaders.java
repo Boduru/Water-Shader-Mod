@@ -175,10 +175,25 @@ public class VanillaShaders {
         // Set Inverse View Matrix
         if (client.player == null) return;
         Camera camera = client.gameRenderer.getCamera();
-        Vector3f cameraPos = new Vector3f((float) camera.getPos().x, (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()), (float) camera.getPos().z);
+        Vector3f cameraPos = new Vector3f((float) camera.getPos().getX(), (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()), (float) camera.getPos().getZ());
+
         Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), cameraPos);
         Matrix4f inverseViewMatrix = viewMatrix.invert();
         setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
+
+        // Set Custom Sneaking Offset Matrix
+        float diffY = WaterShaderMod.cameraSav.cameraEyeYNoSneak - WaterShaderMod.cameraSav.cameraEyeYSneak;
+        Matrix4f customSneakingOffsetMatrix = createTranslationMatrix(0.0f, -diffY, 0.0f);
+
+        customSneakingOffsetMatrix = customSneakingOffsetMatrix.identity();
+
+        setMatrix4f(sp.getGlRef(), "CustomSneakingOffsetMat", customSneakingOffsetMatrix);
+
+//        if (client.player.isSneaking()) {
+//            setMatrix4f(sp.getGlRef(), "CustomSneakingOffsetMat", customSneakingOffsetMatrix);
+//        } else {
+//            setMatrix4f(sp.getGlRef(), "CustomSneakingOffsetMat", new Matrix4f().identity());
+//        }
 
         // Set Pitch
         if (client.player == null) return;
@@ -188,6 +203,10 @@ public class VanillaShaders {
         // Set Sky Color
         setVector3f(sp.getGlRef(), "skyColor", WaterShaderMod.cameraSav.skyColor);
 
+        // Set Camera Position
+        setVector3f(sp.getGlRef(), "cameraPos", cameraPos);
+
+        // Set Timer
         int timerLoc = GL20.glGetUniformLocation(sp.getGlRef(), "timer");
         GL20.glUniform1f(timerLoc, timer);
     }
