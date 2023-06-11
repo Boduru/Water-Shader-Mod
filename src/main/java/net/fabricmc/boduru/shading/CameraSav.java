@@ -1,6 +1,7 @@
 package net.fabricmc.boduru.shading;
 
 import net.minecraft.util.math.Vec3d;
+import org.joml.Vector3f;
 
 public class CameraSav {
     public Vec3d playerPosition;
@@ -11,4 +12,5 @@ public class CameraSav {
     public float tiltX;
     public float translateX;
     public float translateY;
+    public Vector3f skyColor;
 }

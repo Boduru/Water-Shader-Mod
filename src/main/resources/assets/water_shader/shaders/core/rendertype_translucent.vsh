@@ -23,22 +23,15 @@ out vec2 texCoord0;
 out vec4 normal;
 out vec4 worldPos;
 out vec2 dudvMapUVCoords;
-out vec4 clipSpace;
-out mat4 InverseProjMat;
-
-const float tiling = 6.0;
 
 void main() {
     vec3 pos = Position + ChunkOffset;
     worldPos = InverseViewMat * ModelViewMat * vec4(pos, 1.0);
     gl_Position = ProjMat * ModelViewMat * vec4(pos, 1.0);
-    clipSpace = gl_Position;
-    dudvMapUVCoords = vec2(Position.x / 2 + 0.5, Position.y / 2 + 0.5) * tiling;
+    dudvMapUVCoords = vec2(Position.x / 2 + 0.5, Position.y / 2 + 0.5) * 6.0;
 
     vertexDistance = fog_distance(ModelViewMat, pos, FogShape);
     vertexColor = Color * minecraft_sample_lightmap(Sampler2, UV2);
     texCoord0 = UV0;
     normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
-
-    InverseProjMat = inverse(ProjMat);
 }

@@ -55,7 +55,7 @@ public abstract class GameRendererMixin {
 //                    eyeY += 0.5;// WaterShaderMod.cameraSav.cameraPosition.getY();// - ((CameraMixin)camera).getCameraY();
                 }
 
-                double d = 2 * (eyeY - WaterShaderMod.clipPlane.getHeight());
+                double d = 2 * (eyeY - WaterShaderMod.clipPlane.getY());
                 WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, (float) d, 0);
             }
         }

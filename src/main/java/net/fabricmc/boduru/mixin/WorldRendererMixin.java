@@ -7,7 +7,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -25,14 +26,13 @@ public class WorldRendererMixin {
     @Inject(at = @At("HEAD"), method = "render")
     private void setupClippingPlane(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
-        float waterHeight = WaterShaderMod.clipPlane.getHeight();
+        float waterHeight = WaterShaderMod.clipPlane.getY();
         Vector4f plane;
 
         if (client.player != null) {
             if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
                 plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
             } else if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
-//                plane = new Vector4f(0.0f, -1.0f, 0.0f, waterHeight);
                 plane = new Vector4f(0.0f, -1.0f, 0.0f, 256);
             } else {
                 plane = new Vector4f(0.0f, -1.0f, 0.0f, 256f);
@@ -54,6 +54,7 @@ public class WorldRendererMixin {
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/VertexBuffer;bind()V", shift = At.Shift.AFTER), method = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLorg/joml/Matrix4f;)V")
     public void setupWaterShaderParams(RenderLayer renderLayer, MatrixStack matrices, double cameraX, double cameraY, double cameraZ, Matrix4f positionMatrix, CallbackInfo ci) {
+        WorldRenderer worldRenderer = (WorldRenderer) (Object) this;
         MinecraftClient client = MinecraftClient.getInstance();
         int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
         int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
@@ -68,6 +69,7 @@ public class WorldRendererMixin {
         ShaderProgram currentProgram = client.gameRenderer.getProgram("rendertype_translucent");
 
         if (program == currentProgram.getGlRef()) {
+//            Vec3d vec3d = worldRenderer.client.getSkyColor(client.gameRenderer.getCamera().getPos(), tickDelta);
             WaterShaderMod.vanillaShaders.setupWaterShader(client, reflectionColorTexture, refractionColorTexture, dudvmapTexture);
         }
     }
@@ -98,5 +100,16 @@ public class WorldRendererMixin {
         if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.WATER) {
             renderLayer(renderLayer, matrices, cameraX, cameraY, cameraZ, positionMatrix);
         }
+    }
+
+    @Redirect(method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/render/Camera;ZLjava/lang/Runnable;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getSkyColor(Lnet/minecraft/util/math/Vec3d;F)Lnet/minecraft/util/math/Vec3d;", ordinal = 0))
+    private Vec3d redirectGetSkyColor(ClientWorld instance, Vec3d cameraPos, float tickDelta) {
+        Vec3d vec3d = instance.getSkyColor(cameraPos, tickDelta);
+
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.WATER) {
+            WaterShaderMod.cameraSav.skyColor = vec3d.toVector3f();
+        }
+
+        return vec3d;
     }
 }

@@ -2,11 +2,9 @@ package net.fabricmc.boduru.shading;
 
 import net.fabricmc.boduru.main.WaterShaderMod;
 import net.fabricmc.boduru.mixin.CameraMixin;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.Camera;
-import net.minecraft.entity.Entity;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -65,6 +63,17 @@ public class VanillaShaders {
         GL20.glUniformMatrix4fv(uniformLocation, false, buffer);
     }
 
+    public void setVector3f(int shaderProgram, String uniformName, Vector3f vector) {
+        // Use the shader program
+        GL20.glUseProgram(shaderProgram);
+
+        // Get the uniform location
+        int uniformLocation = GL20.glGetUniformLocation(shaderProgram, uniformName);
+
+        // Set the new value
+        GL20.glUniform3f(uniformLocation, vector.x, vector.y, vector.z);
+    }
+
     public void setVector4f(int shaderProgram, String uniformName, Vector4f vector) {
         // Use the shader program
         GL20.glUseProgram(shaderProgram);
@@ -74,21 +83,6 @@ public class VanillaShaders {
 
         // Set the new value
         GL20.glUniform4f(uniformLocation, vector.x, vector.y, vector.z, vector.w);
-    }
-
-    public void setupVanillaShadersClippingPlanes(MinecraftClient client, Camera camera, Vector4f plane) {
-        // Calculate Inverse View Matrix
-        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), camera.getPos().toVector3f());
-        Matrix4f inverseViewMatrix = viewMatrix.invert();
-
-        for (String shader : terrainShaders) {
-            // Inverse View Matrix
-            ShaderProgram sp = client.gameRenderer.getProgram(shader);
-            setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
-
-            // Clip Plane
-            setVector4f(sp.getGlRef(), "plane", plane);
-        }
     }
 
     public void setupVanillaShadersClippingPlanes(MinecraftClient client, float pitch, float yaw, Vector3f pos, Vector4f plane) {
@@ -191,9 +185,8 @@ public class VanillaShaders {
         int pitchLoc = GL20.glGetUniformLocation(sp.getGlRef(), "pitch");
         GL20.glUniform1f(pitchLoc, camera.getPitch());
 
-        // Set distortion variables
-        int waveSpeedLoc = GL20.glGetUniformLocation(sp.getGlRef(), "waveStrength");
-        GL20.glUniform1f(waveSpeedLoc, waveStrength);
+        // Set Sky Color
+        setVector3f(sp.getGlRef(), "skyColor", WaterShaderMod.cameraSav.skyColor);
 
         int timerLoc = GL20.glGetUniformLocation(sp.getGlRef(), "timer");
         GL20.glUniform1f(timerLoc, timer);

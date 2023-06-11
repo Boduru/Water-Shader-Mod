@@ -21,13 +21,10 @@ in vec2 texCoord0;
 in vec4 normal;
 in vec4 worldPos;
 in vec2 dudvMapUVCoords;
-in vec4 clipSpace;
-in mat4 InverseProjMatrix;
 
 uniform float pitch;
 uniform float timer;
-uniform float waveStrength;
-uniform mat4 InverseViewMatrix;
+uniform vec3 skyColor;
 
 out vec4 fragColor;
 
@@ -39,6 +36,10 @@ float getDepth() {
     depth = depth / far;
 
     return depth;
+}
+
+vec4 rgb_to_glsl(vec4 rgb) {
+    return rgb / 255.0;
 }
 
 void main() {
@@ -70,20 +71,18 @@ void main() {
 
     // Calculate fresnel (reflection/refraction mix depending on viewing angle)
     float fresnel = clamp(pitch / 90.0, 0.2f, 0.45f);
+    vec4 waterTint = vec4(240, 248, 255, 30);
 
-    if (worldPos.y > 63.0 || worldPos.y < 60.0) {
+    if (worldPos.y > 61.4 || worldPos.y < 60.0) {
         // Use reflection only
-        fresnel = 1.0;
+        // fresnel = 1.0;
+        reflectionColor = vec4(skyColor, 0.2);
     }
 
-    //reflectionColor = mix(reflectionColor, vec4(0.010, 0.010, 0.43, 1.0), 0.3);
-
     vec4 color = mix(reflectionColor, refractionColor, fresnel);
-    color = mix(color, vec4(0.001, 0.0003, 0.3, 0.85), 0.5);
+    color = mix(color, rgb_to_glsl(waterTint), 0.13);
 
-//    if (worldPos.y > 61.3 || worldPos.y < 61.0) {
-//        color = mix(refractionColor, vec4(0.001, 0.0003, 0.3, 0.85), 0.5);
-//    }
+    color = vec4(ColorModulator.rgb, 1.0);
 
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }
