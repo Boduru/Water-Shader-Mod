@@ -42,8 +42,10 @@ public class WorldRendererMixin {
 
 //            float pitch = client.gameRenderer.getCamera().getPitch();
 //            float yaw = client.gameRenderer.getCamera().getYaw();
-            float pitch = client.player.getPitch();
-            float yaw = client.player.getYaw();
+//            float pitch = client.player.getPitch();
+//            float yaw = client.player.getYaw();
+            float pitch = camera.getPitch();
+            float yaw = camera.getYaw();
 
             double eyeY = camera.getPos().getY() - ((CameraMixin) camera).getCameraY();
 

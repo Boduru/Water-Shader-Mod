@@ -197,10 +197,6 @@ public class VanillaShaders {
         Matrix4f viewMatrix = createViewMatrix(pitch, yaw, cameraPos);
         Matrix4f inverseViewMatrix = viewMatrix.invert();
 
-//        inverseViewMatrix = WaterShaderMod.cameraSav.matrixStack.peek().getPositionMatrix().invert();
-
-//        inverseViewMatrix = RenderSystem.getModelViewMatrix().invert();
-
         setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
 
         // Set Custom Sneaking Offset Matrix
@@ -211,12 +207,6 @@ public class VanillaShaders {
         customSneakingOffsetMatrix = customSneakingOffsetMatrix.identity();
 
         setMatrix4f(sp.getGlRef(), "CustomSneakingOffsetMat", customSneakingOffsetMatrix);
-
-//        if (client.player.isSneaking()) {
-//            setMatrix4f(sp.getGlRef(), "CustomSneakingOffsetMat", customSneakingOffsetMatrix);
-//        } else {
-//            setMatrix4f(sp.getGlRef(), "CustomSneakingOffsetMat", new Matrix4f().identity());
-//        }
 
         // Set Pitch
         if (client.player == null) return;

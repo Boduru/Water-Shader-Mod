@@ -33,7 +33,8 @@ public abstract class GameRendererMixin {
     @Shadow private boolean renderHand;
     @Shadow @Final private MinecraftClient client;
 
-    @Inject(at = @At("HEAD"), method = "renderWorld")
+    //@Inject(at = @At("HEAD"), method = "renderWorld")
+    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setInverseViewRotationMatrix(Lorg/joml/Matrix3f;)V"), method = "renderWorld")
     private void PostCameraUpdate(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
 
@@ -46,10 +47,11 @@ public abstract class GameRendererMixin {
                 WaterShaderMod.cameraSav.playerPitch = client.player.getPitch();
                 WaterShaderMod.cameraSav.playerPosition = client.player.getPos();
 
-                float pitch = -client.player.getPitch();
-                client.player.setPitch(pitch);
+//                float pitch = -client.player.getPitch();
+//                client.player.setPitch(pitch);
 //                float pitch = -camera.getPitch();
 //                ((CameraMixin)camera).setPitch(pitch);
+//                ((CameraMixin)camera).invokeSetRotation(camera.getYaw(), pitch);
 
                 // Do not render hand
                 renderHand = false;
@@ -154,9 +156,10 @@ public abstract class GameRendererMixin {
             MinecraftClient client = MinecraftClient.getInstance();
 
             if (camera.getFocusedEntity() != null && client.player != null) {
-                float pitch = WaterShaderMod.cameraSav.playerPitch;
-                client.player.setPitch(pitch);
-//                ((CameraMixin)camera).setPitch(client.player.getPitch());
+//                float pitch = WaterShaderMod.cameraSav.playerPitch;
+//                client.player.setPitch(pitch);
+//                ((CameraMixin)camera).setPitch(-camera.getPitch());
+//                ((CameraMixin)camera).invokeSetRotation(camera.getYaw(), -camera.getPitch());
             }
 
             gameRenderer.render(tickDelta, startTime, tick);

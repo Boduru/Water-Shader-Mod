@@ -27,7 +27,7 @@ public interface CameraMixin {
     float getYaw();
 
     @Invoker
-    void invokeSetRotation(float pitch, float yaw);
+    void invokeSetRotation(float yaw, float pitch);
 
     @Invoker
     void invokeSetPos(double x, double y, double z);
