@@ -44,7 +44,9 @@ public class WorldRendererMixin {
             float yaw = client.gameRenderer.getCamera().getYaw();
             double eyeY = camera.getPos().getY() - ((CameraMixin) camera).getCameraY();
 
-            Vector3f pos = new Vector3f((float) camera.getPos().getX(), (float) eyeY, (float) camera.getPos().getZ());
+            float sneakOffset = (float) (1.6198292 - ((CameraMixin) camera).getCameraY());
+
+            Vector3f pos = new Vector3f((float) camera.getPos().getX(), (float) eyeY + sneakOffset, (float) camera.getPos().getZ());
             WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, pitch, yaw, pos, plane);
 //            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, gameRenderer.getCamera(), plane);
         }

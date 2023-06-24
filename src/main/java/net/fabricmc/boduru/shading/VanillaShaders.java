@@ -1,5 +1,6 @@
 package net.fabricmc.boduru.shading;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.boduru.main.WaterShaderMod;
 import net.fabricmc.boduru.mixin.CameraMixin;
 import net.minecraft.client.MinecraftClient;
@@ -115,13 +116,19 @@ public class VanillaShaders {
         Matrix4f viewMatrix = new Matrix4f();
         viewMatrix.identity();
 
+//        pitch += Math.toRadians(WaterShaderMod.cameraSav.tiltX);
+//        double roll = Math.toRadians(WaterShaderMod.cameraSav.tiltZ);
+
         viewMatrix.rotate((float) Math.toRadians(pitch), 1, 0, 0);
         viewMatrix.rotate((float) Math.toRadians(yaw), 0, 1, 0);
+//        viewMatrix.rotate((float) Math.toRadians(roll), 0, 0, 1);
 
 //        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
-//            viewMatrix.rotate((float) Math.toRadians(WaterShaderMod.cameraSav.tiltX), 1, 0, 0);
-//            viewMatrix.rotate((float) Math.toRadians(WaterShaderMod.cameraSav.tiltZ), 0, 0, 1);
+//            viewMatrix.rotate((float) Math.toRadians(WaterShaderMod.cameraSav.tiltX / 15), 1, 0, 0);
+//            viewMatrix.rotate((float) Math.toRadians(WaterShaderMod.cameraSav.tiltZ / 15), 0, 0, 1);
 //        }
+
+//        position = position.add(new Vector3f(-WaterShaderMod.cameraSav.translateX, -WaterShaderMod.cameraSav.translateY, 0.0f));
 
         Vector3f negativeCameraPos = new Vector3f(-position.x, -position.y, -position.z);
         viewMatrix.translate(negativeCameraPos);
@@ -180,11 +187,17 @@ public class VanillaShaders {
 
         Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), cameraPos);
         Matrix4f inverseViewMatrix = viewMatrix.invert();
+
+//        inverseViewMatrix = WaterShaderMod.cameraSav.matrixStack.peek().getPositionMatrix().invert();
+
+//        inverseViewMatrix = RenderSystem.getModelViewMatrix().invert();
+
         setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
 
         // Set Custom Sneaking Offset Matrix
-        float diffY = WaterShaderMod.cameraSav.cameraEyeYNoSneak - WaterShaderMod.cameraSav.cameraEyeYSneak;
-        Matrix4f customSneakingOffsetMatrix = createTranslationMatrix(0.0f, diffY, 0.0f);
+        //float diffY = WaterShaderMod.cameraSav.cameraEyeYNoSneak - WaterShaderMod.cameraSav.cameraEyeYSneak;
+        float sneakOffset = (float) (1.6198292 - ((CameraMixin) camera).getCameraY());
+        Matrix4f customSneakingOffsetMatrix = createTranslationMatrix(0.0f, sneakOffset, 0.0f);
 
         customSneakingOffsetMatrix = customSneakingOffsetMatrix.identity();
 
@@ -210,5 +223,9 @@ public class VanillaShaders {
         // Set Timer
         int timerLoc = GL20.glGetUniformLocation(sp.getGlRef(), "timer");
         GL20.glUniform1f(timerLoc, timer);
+
+        // Set Sneak Offset
+        int sneakOffsetLoc = GL20.glGetUniformLocation(sp.getGlRef(), "sneakOffset");
+        GL20.glUniform1f(sneakOffsetLoc, sneakOffset);
     }
 }

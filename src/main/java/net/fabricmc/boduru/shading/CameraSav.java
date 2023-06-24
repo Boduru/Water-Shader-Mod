@@ -1,5 +1,6 @@
 package net.fabricmc.boduru.shading;
 
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -16,5 +17,5 @@ public class CameraSav {
     public Vector3f skyColor;
     public float cameraEyeYNoSneak;
     public float cameraEyeYSneak;
-    public Matrix4f inverseViewMatrix;
+    public MatrixStack matrixStack = new MatrixStack();
 }

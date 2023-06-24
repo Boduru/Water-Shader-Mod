@@ -27,6 +27,7 @@ in vec3 toCameraVector;
 uniform float pitch;
 uniform float timer;
 uniform vec3 skyColor;
+uniform float sneakOffset;
 
 out vec4 fragColor;
 
@@ -73,6 +74,11 @@ void main() {
     vec2 reflectionCoords = vec2(uv.x, -uv.y);
     vec2 refractionCoords = uv;
 
+    // Clamp texture coordinates to [0, 1]
+//    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
+//    reflectionCoords.x = clamp(reflectionCoords.x, 0.001, 0.999);
+//    reflectionCoords.y = clamp(reflectionCoords.y, -0.999, -0.111);
+
     // Sample reflection and refraction textures
     vec4 reflectionColor = texture(reflectionTexture, reflectionCoords) * 0.70;
     vec4 refractionColor = texture(refractionTexture, refractionCoords);
@@ -86,11 +92,11 @@ void main() {
     float reflectionFactor = clamp(dot(viewVector, vec3(0, 1, 0)), 0.2, 0.8);
     vec4 waterTint = vec4(240, 248, 255, 30);
 
-    if (worldPos.y > 61.4 || worldPos.y < 60.0) {
+    if (worldPos.y - sneakOffset > 61.4 || worldPos.y - sneakOffset < 60.0) {
         // Use refraction only
 //        reflectionFactor = 0.0;
         //reflectionColor = mix(refractionColor, vec4(skyColor, 0.08), abs(61.3 - worldPos.y) / 61.3);
-        float yLimit = 62.6;
+        float yLimit = 62.6 - sneakOffset;
         float y = worldPos.y;
         //reflectionFactor = mix(0.0, 1.0, 1 - min((yLimit - y) / yLimit, 1.0));
         reflectionFactor = clamp(mapRange(y, 61.3, 62.0, 0.0, 1.0), 0.0, 0.8);

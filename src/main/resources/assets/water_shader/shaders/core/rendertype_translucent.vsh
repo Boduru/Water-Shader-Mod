@@ -33,7 +33,7 @@ void main() {
     worldPos = InverseViewMat * ModelViewMat * CustomSneakingOffsetMat * vec4(pos, 1.0);
     gl_Position = ProjMat * ModelViewMat * vec4(pos, 1.0);
     clipSpace = gl_Position;
-    dudvMapUVCoords = vec2(Position.x / 2 + 0.5, Position.y / 2 + 0.5) * 6.0;
+    dudvMapUVCoords = vec2(pos.x / 2 + 0.5, pos.y / 2 + 0.5) * 6.0;
 
     vertexDistance = fog_distance(ModelViewMat, pos, FogShape);
     vertexColor = Color * minecraft_sample_lightmap(Sampler2, UV2);
