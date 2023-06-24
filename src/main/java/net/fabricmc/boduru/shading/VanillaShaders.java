@@ -185,7 +185,16 @@ public class VanillaShaders {
         float eyeY = (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()); // (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY())
         Vector3f cameraPos = new Vector3f((float) camera.getPos().getX(), eyeY, (float) camera.getPos().getZ());
 
-        Matrix4f viewMatrix = createViewMatrix(camera.getPitch(), camera.getYaw(), cameraPos);
+//        float pitch = client.player.getPitch();
+//        System.out.println(pitch);
+
+//        float pitch = client.player.getPitch(); // camera.getPitch();
+//        float yaw = client.player.getYaw(); // camera.getYaw();
+
+        float pitch = camera.getPitch();
+        float yaw = camera.getYaw();
+
+        Matrix4f viewMatrix = createViewMatrix(pitch, yaw, cameraPos);
         Matrix4f inverseViewMatrix = viewMatrix.invert();
 
 //        inverseViewMatrix = WaterShaderMod.cameraSav.matrixStack.peek().getPositionMatrix().invert();

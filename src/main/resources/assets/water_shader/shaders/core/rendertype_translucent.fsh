@@ -1,4 +1,4 @@
-#version 450 core
+#version 150 core
 
 #moj_import <fog.glsl>
 
@@ -73,11 +73,6 @@ void main() {
     // Calculate reflection and refraction texture coordinates
     vec2 reflectionCoords = vec2(uv.x, -uv.y);
     vec2 refractionCoords = uv;
-
-    // Clamp texture coordinates to [0, 1]
-//    refractionCoords = clamp(refractionCoords, 0.001, 0.999);
-//    reflectionCoords.x = clamp(reflectionCoords.x, 0.001, 0.999);
-//    reflectionCoords.y = clamp(reflectionCoords.y, -0.999, -0.111);
 
     // Sample reflection and refraction textures
     vec4 reflectionColor = texture(reflectionTexture, reflectionCoords) * 0.70;

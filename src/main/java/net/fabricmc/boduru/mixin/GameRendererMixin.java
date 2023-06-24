@@ -1,5 +1,7 @@
 package net.fabricmc.boduru.mixin;
 
+import com.mojang.blaze3d.platform.GlConst;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.boduru.main.WaterShaderMod;
 import net.fabricmc.boduru.shading.RenderPass;
 import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
@@ -38,16 +40,16 @@ public abstract class GameRendererMixin {
         if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
             if (camera.getFocusedEntity() != null && client.player != null)  {
                 // Saving
-                if (!client.player.isSneaking()) {
-                    WaterShaderMod.cameraSav.cameraPitch = camera.getPitch();
-                    WaterShaderMod.cameraSav.cameraPosition = camera.getPos();
+                WaterShaderMod.cameraSav.cameraPitch = camera.getPitch();
+                WaterShaderMod.cameraSav.cameraPosition = camera.getPos();
 
-                    WaterShaderMod.cameraSav.playerPitch = client.player.getPitch();
-                    WaterShaderMod.cameraSav.playerPosition = client.player.getPos();
-                }
+                WaterShaderMod.cameraSav.playerPitch = client.player.getPitch();
+                WaterShaderMod.cameraSav.playerPosition = client.player.getPos();
 
                 float pitch = -client.player.getPitch();
                 client.player.setPitch(pitch);
+//                float pitch = -camera.getPitch();
+//                ((CameraMixin)camera).setPitch(pitch);
 
                 // Do not render hand
                 renderHand = false;
@@ -151,9 +153,10 @@ public abstract class GameRendererMixin {
             // Restore camera
             MinecraftClient client = MinecraftClient.getInstance();
 
-            if (camera.getFocusedEntity() != null && client.player != null && WaterShaderMod.cameraSav.playerPosition != null) {
+            if (camera.getFocusedEntity() != null && client.player != null) {
                 float pitch = WaterShaderMod.cameraSav.playerPitch;
                 client.player.setPitch(pitch);
+//                ((CameraMixin)camera).setPitch(client.player.getPitch());
             }
 
             gameRenderer.render(tickDelta, startTime, tick);

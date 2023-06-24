@@ -40,8 +40,11 @@ public class WorldRendererMixin {
                 plane = new Vector4f(0.0f, -1.0f, 0.0f, 256f);
             }
 
-            float pitch = client.gameRenderer.getCamera().getPitch();
-            float yaw = client.gameRenderer.getCamera().getYaw();
+//            float pitch = client.gameRenderer.getCamera().getPitch();
+//            float yaw = client.gameRenderer.getCamera().getYaw();
+            float pitch = client.player.getPitch();
+            float yaw = client.player.getYaw();
+
             double eyeY = camera.getPos().getY() - ((CameraMixin) camera).getCameraY();
 
             float sneakOffset = (float) (1.6198292 - ((CameraMixin) camera).getCameraY());

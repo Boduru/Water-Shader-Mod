@@ -2,6 +2,7 @@ package net.fabricmc.boduru.mixin;
 
 import net.fabricmc.boduru.main.WaterShaderMod;
 import net.minecraft.client.MinecraftClient;
+import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
