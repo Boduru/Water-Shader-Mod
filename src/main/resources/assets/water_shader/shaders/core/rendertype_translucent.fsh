@@ -54,7 +54,7 @@ void main() {
     // Distortion
     float minFrequency = 55;
     float maxFrequency = 20;
-    float minDistortionAmount = 0.001;
+    float minDistortionAmount = 0.002;
     float maxDistortionAmount = 0.005;
     float minwsEffet = 1.0;
     float maxwsEffet = 7.9;
@@ -78,7 +78,7 @@ void main() {
     vec4 reflectionColor = texture(reflectionTexture, reflectionCoords) * 0.70;
     vec4 refractionColor = texture(refractionTexture, refractionCoords);
 
-    reflectionColor.a = 0.5;
+    reflectionColor.a = 0.35;
 
     // Calculate fresnel (reflection/refraction mix depending on viewing angle)
     //float fresnel = clamp(pitch / 90.0, 0.25f, 0.55f);

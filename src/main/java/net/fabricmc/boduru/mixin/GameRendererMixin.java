@@ -60,7 +60,23 @@ public abstract class GameRendererMixin {
                     client.player.setInvisible(true);
                 }
 
+//                System.out.println(camera.getPos());
+
+//                System.out.println(client.player.getEyeY());
+//                System.out.println((float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()));
+
                 double eyeY = (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()); // camera.getPos().getY() - ((CameraMixin)camera).getCameraY();
+
+//                if (!this.client.options.getPerspective().isFirstPerson()) {
+//                    double eyeToHeadDiff = client.player.getEyeY() - camera.getPos().getY();
+//                    double camYToEyeDiff = client.player.getEyeY() - ((CameraMixin) camera).getCameraY();
+//                    double dy = eyeToHeadDiff + camYToEyeDiff;
+//                    eyeY = dy;
+//                    eyeY = 63.0 + 63.0 + camera.getPos().getY();
+//                }
+
+//                System.out.println(camera.getPitch());
+//                System.out.println(client.player.getPitch());
 
 //                if (client.player.isSneaking()) {
 //                    WaterShaderMod.cameraSav.cameraEyeYSneak = ((CameraMixin)camera).getCameraY();

@@ -183,6 +183,15 @@ public class VanillaShaders {
         if (client.player == null) return;
         Camera camera = client.gameRenderer.getCamera();
         float eyeY = (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY()); // (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY())
+
+//        if (!client.options.getPerspective().isFirstPerson()) {
+//            double eyeToHeadDiff = client.player.getEyeY() - camera.getPos().getY();
+//            double camYToEyeDiff = client.player.getEyeY() - ((CameraMixin)camera).getCameraY();
+//            double dy = eyeToHeadDiff + camYToEyeDiff;
+//            eyeY = (float) dy;
+//            eyeY = (float) (63.0 + 63.0 + camera.getPos().getY());
+//        }
+
         Vector3f cameraPos = new Vector3f((float) camera.getPos().getX(), eyeY, (float) camera.getPos().getZ());
 
 //        float pitch = client.player.getPitch();
