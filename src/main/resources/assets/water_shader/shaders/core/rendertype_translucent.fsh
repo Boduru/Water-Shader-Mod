@@ -50,12 +50,12 @@ float mapRange(float x, float a, float b, float c, float d) {
 
 void main() {
     // Distortion
-    float minFrequency = 55;
-    float maxFrequency = 20;
+    float minFrequency = 50.0;
+    float maxFrequency = 20.0;
     float minDistortionAmount = 0.002;
-    float maxDistortionAmount = 0.005;
+    float maxDistortionAmount = 0.009;
     float minwsEffet = 1.0;
-    float maxwsEffet = 7.9;
+    float maxwsEffet = 10.9;
 
     float frequency = mix(minFrequency, maxFrequency, getDepth());
     float distortionAmount = mix(minDistortionAmount, maxDistortionAmount, getDepth());

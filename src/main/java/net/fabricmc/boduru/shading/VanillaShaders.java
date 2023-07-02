@@ -19,10 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class VanillaShaders {
-    private List<String> terrainShaders;
-    private String waterShader;
+    private final List<String> terrainShaders;
+    private final String waterShader;
     private float timer = 0.0f;
-    public static VanillaShaders Instance;
+    private static VanillaShaders instance;
 
     private VanillaShaders() {
         terrainShaders = new ArrayList<>(Arrays.asList(
@@ -37,10 +37,10 @@ public class VanillaShaders {
     }
 
     public static VanillaShaders getInstance() {
-        if (Instance == null) {
-            Instance = new VanillaShaders();
+        if (instance == null) {
+            instance = new VanillaShaders();
         }
-        return Instance;
+        return instance;
     }
 
     public void updateTimer(float tickDelta) {
@@ -92,10 +92,11 @@ public class VanillaShaders {
         for (String shader : terrainShaders) {
             // Inverse View Matrix
             ShaderProgram sp = client.gameRenderer.getProgram(shader);
-            setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
 
-            // Clip Plane
-            setVector4f(sp.getGlRef(), "plane", plane);
+            if (sp != null) {
+                setMatrix4f(sp.getGlRef(), "InverseViewMat", inverseViewMatrix);
+                setVector4f(sp.getGlRef(), "plane", plane);
+            }
         }
     }
 
@@ -105,7 +106,10 @@ public class VanillaShaders {
         for (String shader : terrainShaders) {
             // Model Matrix
             ShaderProgram sp = client.gameRenderer.getProgram(shader);
-            setMatrix4f(sp.getGlRef(), "CustomModelMatrix", modelMatrix);
+
+            if (sp != null) {
+                setMatrix4f(sp.getGlRef(), "CustomModelMatrix", modelMatrix);
+            }
         }
     }
 

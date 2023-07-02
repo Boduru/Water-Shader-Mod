@@ -14,15 +14,15 @@ public class RenderPass {
 
     private Pass currentPass = Pass.REFLECTION;
 
-    private static RenderPass Instance;
+    private static RenderPass instance;
 
     private RenderPass() {}
 
     public static RenderPass getInstance() {
-        if (Instance == null)
-            Instance = new RenderPass();
+        if (instance == null)
+            instance = new RenderPass();
 
-        return Instance;
+        return instance;
     }
 
     public void nextRenderPass() {

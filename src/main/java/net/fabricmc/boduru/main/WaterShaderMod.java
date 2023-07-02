@@ -25,14 +25,11 @@ public class WaterShaderMod implements ModInitializer {
         LOGGER.info("Water Shader Mod Ready!");
 
         // Initialize static variables
-        clipPlane = new ClipPlane();
+        clipPlane = new ClipPlane(61.36f);
         framebuffers = new Framebuffers();
         renderPass = RenderPass.getInstance();
         vanillaShaders = VanillaShaders.getInstance();
         cameraSav = new CameraSav();
-
-        // Initialize clip plane
-        clipPlane.setHeight(61.36f);
     }
 
     public static void InitContext() {

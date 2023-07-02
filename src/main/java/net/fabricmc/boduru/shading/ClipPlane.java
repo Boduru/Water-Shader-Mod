@@ -8,8 +8,8 @@ package net.fabricmc.boduru.shading;
 public class ClipPlane {
     private float y;
 
-    public void setHeight(float y) {
-        this.y = y;
+    public ClipPlane(float clipY) {
+        y = clipY;
     }
 
     public float getY() {
