@@ -50,7 +50,7 @@ public class Framebuffers {
 
     public void unbindCurrentFrameBuffer(int displayWidth, int displayHeight) {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        GL11.glViewport(0, 0, displayWidth, displayHeight);
+        // GL11.glViewport(0, 0, displayWidth, displayHeight);
     }
 
     public int getReflectionFBO() {

@@ -14,13 +14,29 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+* This mixin is responsible for setting up the three render passes.
+* The three passes are:
+* 1. Reflection pass
+* 2. Refraction pass
+* 3. Final pass (Water)
+* At the end of each pass, we switch to the next pass until water is rendered.
+* For each frame of the game, we render (GameRenderer.render) the world three times.
+*/
+
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
     @Shadow @Final private Camera camera;
     @Shadow private boolean renderHand;
 
+    /**
+    * This method prepares the render pass.
+    * For reflection pass, we define a clipping plane by moving the world up by 2 * (cameraY - clipPlaneY).
+    * Hand and player are made invisible to avoid weird-looking artifacts on the water.
+    * For refraction pass, we render the world normally.
+    */
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setInverseViewRotationMatrix(Lorg/joml/Matrix3f;)V"), method = "renderWorld")
-    private void PostCameraUpdate(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
+    private void setupRenderPass(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
@@ -48,6 +64,11 @@ public abstract class GameRendererMixin {
         }
     }
 
+    /**
+    * This method cancels the bobbing effect of the player and the hand.
+    * This is done to avoid the reflection on the water to swing up and down when the player walks/runs.
+    * This is not an optimal solution, but it prevents an annoying visual bug.
+    */
     @Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V"))
     private void renderBobView(GameRenderer instance, MatrixStack matrices, float tickDelta) {
         if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.WATER) {
@@ -55,6 +76,11 @@ public abstract class GameRendererMixin {
         }
     }
 
+    /**
+    * This method renders the world.
+    * For reflection pass, we render the world upside down.
+    * For refraction pass, we render the world normally.
+    */
     @Inject(at = @At("TAIL"), method = "render")
     private void renderTail(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
         if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {

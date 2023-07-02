@@ -9,6 +9,12 @@ import org.slf4j.LoggerFactory;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL30.GL_CLIP_DISTANCE0;
 
+/*
+    * This is the main class of the mod.
+    * It is responsible for initializing the mod and its components.
+    * It gathers all features of the mod and helps access them.
+ */
+
 public class WaterShaderMod implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("water_shader_mod");
 

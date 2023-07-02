@@ -10,6 +10,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin {
+    /**
+     * Method to invert the pitch of the player when rendering the reflection pass.
+     */
     @Inject(at = @At("TAIL"), method = "getPitch", cancellable = true)
     private void getPitch(float tickDelta, CallbackInfoReturnable<Float> cir) {
         if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {

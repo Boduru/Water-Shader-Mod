@@ -26,11 +26,11 @@ public class VanillaShaders {
 
     private VanillaShaders() {
         terrainShaders = new ArrayList<>(Arrays.asList(
-                "rendertype_cutout",
-                "rendertype_cutout_mipped",
-                "rendertype_crumbling",
-                "rendertype_solid",
-                "block"
+            "rendertype_cutout",
+            "rendertype_cutout_mipped",
+            "rendertype_crumbling",
+            "rendertype_solid",
+            "block"
         ));
 
         waterShader = "rendertype_translucent";
@@ -136,8 +136,10 @@ public class VanillaShaders {
     }
 
     public void setupWaterShader(MinecraftClient client, int reflectionTexture, int refractionTexture) {
-        // Use the shader program
+        // Get water shader program
         ShaderProgram sp = client.gameRenderer.getProgram(waterShader);
+
+        if (sp == null || client.player == null) return;
 
         // Get the uniform location
         int uniformLocationReflec = GL20.glGetUniformLocation(sp.getGlRef(), "reflectionTexture");
@@ -161,7 +163,6 @@ public class VanillaShaders {
         GL20.glUniform1i(screenHeightLoc, client.getWindow().getFramebufferHeight());
 
         // Set Inverse View Matrix
-        if (client.player == null) return;
         Camera camera = client.gameRenderer.getCamera();
         float eyeY = (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY());
 
@@ -179,7 +180,6 @@ public class VanillaShaders {
         float sneakOffset = (float) (1.6198292 - ((CameraMixin) camera).getCameraY());
 
         // Set Pitch
-        if (client.player == null) return;
         int pitchLoc = GL20.glGetUniformLocation(sp.getGlRef(), "pitch");
         GL20.glUniform1f(pitchLoc, camera.getPitch());
 

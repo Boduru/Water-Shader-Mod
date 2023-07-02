@@ -25,6 +25,9 @@ public class RenderPass {
         return instance;
     }
 
+    /**
+     * Switches to the next render pass and loops back to the first pass when the last pass is reached.
+     */
     public void nextRenderPass() {
         currentPass = Pass.values()[(currentPass.ordinal() + 1) % Pass.values().length];
     }

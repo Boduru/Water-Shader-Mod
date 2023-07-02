@@ -50,6 +50,9 @@ public class WorldRendererMixin {
         }
     }
 
+    /**
+     * Just before rendering water, we need to bind the water shader and setup the uniforms.
+     */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/VertexBuffer;bind()V", shift = At.Shift.AFTER), method = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLorg/joml/Matrix4f;)V")
     public void setupWaterShaderParams(RenderLayer renderLayer, MatrixStack matrices, double cameraX, double cameraY, double cameraZ, Matrix4f positionMatrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -69,6 +72,10 @@ public class WorldRendererMixin {
         }
     }
 
+    /**
+    * After frame is rendered, we copy the frame buffer to our custom FBO.
+    * This is done for both reflection and refraction passes.
+    */
     @Inject(at = @At("TAIL"), method = "render")
     private void renderToCustomFBO(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -85,10 +92,16 @@ public class WorldRendererMixin {
         }
     }
 
+    /**
+    * Access renderLayer method to redirect water draw call to our custom shader.
+    */
     @Shadow
     private void renderLayer(RenderLayer renderLayer, MatrixStack matrices, double cameraX, double cameraY, double cameraZ, Matrix4f positionMatrix) {
     }
 
+    /**
+     * Render water only for water pass.
+     */
     @Redirect(method = "Lnet/minecraft/client/render/WorldRenderer;render(Lnet/minecraft/client/util/math/MatrixStack;FJZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lorg/joml/Matrix4f;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLorg/joml/Matrix4f;)V", ordinal = 5))
     private void redirectWaterDrawCall(WorldRenderer instance, RenderLayer renderLayer, MatrixStack matrices, double cameraX, double cameraY, double cameraZ, Matrix4f positionMatrix) {
         if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.WATER) {
@@ -96,6 +109,9 @@ public class WorldRendererMixin {
         }
     }
 
+    /**
+    * Retrieve sky color for water pass.
+    */
     @Redirect(method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/render/Camera;ZLjava/lang/Runnable;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getSkyColor(Lnet/minecraft/util/math/Vec3d;F)Lnet/minecraft/util/math/Vec3d;", ordinal = 0))
     private Vec3d redirectGetSkyColor(ClientWorld instance, Vec3d cameraPos, float tickDelta) {
         Vec3d vec3d = instance.getSkyColor(cameraPos, tickDelta);
@@ -107,6 +123,11 @@ public class WorldRendererMixin {
         return vec3d;
     }
 
+    /**
+    * Do not render stars for reflection pass.
+    * Because stars scatter on water surface, and give a weird effect.
+    * This is done by skipping the draw call.
+    */
     @Redirect(method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/render/Camera;ZLjava/lang/Runnable;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/VertexBuffer;draw(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/gl/ShaderProgram;)V",
                     ordinal = 1))
@@ -116,6 +137,11 @@ public class WorldRendererMixin {
         }
     }
 
+    /**
+    * Do not render clouds for reflection pass.
+    * Because clouds scatter on water surface, and give a weird effect.
+    * This is done by skipping the draw call.
+    */
     @Redirect(method = "render",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FDDD)V"))
     public void redirectDrawClouds(WorldRenderer instance, MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, double d, double e, double f) {
