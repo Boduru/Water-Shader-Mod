@@ -1,26 +1,11 @@
 package net.fabricmc.boduru.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.boduru.main.WaterShaderMod;
-import net.fabricmc.boduru.shading.Framebuffers;
 import net.fabricmc.boduru.shading.RenderPass;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.option.SimpleOption;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,167 +14,91 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+* This mixin is responsible for setting up the three render passes.
+* The three passes are:
+* 1. Reflection pass
+* 2. Refraction pass
+* 3. Final pass (Water)
+* At the end of each pass, we switch to the next pass until water is rendered.
+* For each frame of the game, we render (GameRenderer.render) the world three times.
+*/
+
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
-    @Inject(at = @At("HEAD"), method = "render")
-    private void renderHead(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
-//        if (!WaterShaderMod.renderPass.doDrawWater()) {
-//            MinecraftClient client = MinecraftClient.getInstance();
-//            Entity cameraclient = client.player;
-//
-//            if (cameraclient != null) {
-//                Vec3d position = cameraclient.getPos();
-//                float pitch = cameraclient.getPitch();
-//
-//                WaterShaderMod.cameraSav.pitch = pitch;
-//                WaterShaderMod.cameraSav.position = position;
-//
-//                double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
-//                cameraclient.setPos(position.getX(), d, position.getZ());
-//                cameraclient.setPitch(-pitch);
-//            }
-//        }
-//        else {
-//            MinecraftClient client = MinecraftClient.getInstance();
-//            Entity cameraclient = client.player;
-//
-//            Vec3d position = WaterShaderMod.cameraSav.position;
-//
-//            if (cameraclient != null) {
-//                cameraclient.setPos(position.getX(), position.getY(), position.getZ());
-//                cameraclient.setPitch(WaterShaderMod.cameraSav.pitch);
-//            }
-//        }
+    @Shadow @Final private Camera camera;
+    @Shadow private boolean renderHand;
 
-        if (!WaterShaderMod.renderPass.doDrawWater()) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            Entity cameraclient = client.player;
+    /**
+    * This method prepares the render pass.
+    * For reflection pass, we define a clipping plane by moving the world up by 2 * (cameraY - clipPlaneY).
+    * Hand and player are made invisible to avoid weird-looking artifacts on the water.
+    * For refraction pass, we render the world normally.
+    */
+    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setInverseViewRotationMatrix(Lorg/joml/Matrix3f;)V"), method = "renderWorld")
+    private void setupRenderPass(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
+        MinecraftClient client = MinecraftClient.getInstance();
 
-            if (cameraclient != null) {
-//                Vec3d position = cameraclient.getCameraPosVec(tickDelta);
-                Vec3d position = cameraclient.getPos();
-                float pitch = cameraclient.getPitch();
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
+            if (camera.getFocusedEntity() != null && client.player != null)  {
+                // Do not render hand
+                renderHand = false;
 
-                WaterShaderMod.cameraSav.pitch = pitch;
-                WaterShaderMod.cameraSav.position = position;
+                if (camera.isThirdPerson()) {
+                    client.player.setInvisible(true);
+                }
 
-                double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
-                cameraclient.setPos(position.getX(), position.getY() - d, position.getZ());
-                cameraclient.setPitch(-pitch);
+                double eyeY = (float) (camera.getPos().getY() - ((CameraMixin)camera).getCameraY());
+                double d = 2 * (eyeY - WaterShaderMod.clipPlane.getY());
+                WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, (float) d, 0);
             }
         }
         else {
-            MinecraftClient client = MinecraftClient.getInstance();
-            Entity cameraclient = client.player;
+            renderHand = true;
 
-            Vec3d position = WaterShaderMod.cameraSav.position;
-
-            if (cameraclient != null) {
-                cameraclient.setPos(position.getX(), position.getY(), position.getZ());
-                cameraclient.setPitch(WaterShaderMod.cameraSav.pitch);
+            if (client.player != null) {
+                client.player.setInvisible(false);
             }
+
+            WaterShaderMod.vanillaShaders.setupVanillaShadersModelMatrices(client, 0, 0, 0);
         }
-
-
-
-        /*GameRenderer gameRenderer = (GameRenderer) (Object) this;
-        Camera camera = gameRenderer.getCamera();
-
-        if (!WaterShaderMod.renderPass.doDrawWater()) {
-            if (camera != null) {
-                Vec3d position = camera.getPos();
-                float pitch = camera.getPitch();
-
-                WaterShaderMod.cameraSav.pitch = pitch;
-                WaterShaderMod.cameraSav.position = position;
-
-                double d = 2 * (position.getY() - WaterShaderMod.clipPlane.getHeight());
-                ((CameraMixin) camera).invokeSetPos(position.getX(), d, position.getZ());
-                ((CameraMixin) camera).setPitch(-pitch);
-            }
-        } else {
-            Vec3d position = WaterShaderMod.cameraSav.position;
-            float pitch = WaterShaderMod.cameraSav.pitch;
-
-            ((CameraMixin) camera).invokeSetPos(position.x, position.y, position.z);
-            ((CameraMixin) camera).setPitch(pitch);
-        }*/
     }
 
+    /**
+    * This method cancels the bobbing effect of the player and the hand.
+    * This is done to avoid the reflection on the water to swing up and down when the player walks/runs.
+    * This is not an optimal solution, but it prevents an annoying visual bug.
+    */
+    @Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;bobView(Lnet/minecraft/client/util/math/MatrixStack;F)V"))
+    private void renderBobView(GameRenderer instance, MatrixStack matrices, float tickDelta) {
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.WATER) {
+            // bobView(matrices, tickDelta);
+        }
+    }
+
+    /**
+    * This method renders the world.
+    * For reflection pass, we render the world upside down.
+    * For refraction pass, we render the world normally.
+    */
     @Inject(at = @At("TAIL"), method = "render")
     private void renderTail(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
-        if (!WaterShaderMod.renderPass.doDrawWater()) {
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFLECTION) {
             // Clipping plane pass
             GameRenderer gameRenderer = (GameRenderer) (Object) this;
-            WaterShaderMod.renderPass.setDrawWater(true);
+            WaterShaderMod.renderPass.nextRenderPass();
+
             gameRenderer.render(tickDelta, startTime, tick);
-            WaterShaderMod.renderPass.setDrawWater(false);
         }
-    }
 
-    //@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"))
-    private void renderWorld(GameRenderer instance, float tickDelta, long limitTime, MatrixStack matrices) {
-        MinecraftClient client = MinecraftClient.getInstance();
-//        int width = client.getWindow().getFramebufferWidth();
-//        int height = client.getWindow().getFramebufferHeight();
-//
-//        int reflectionFBO = WaterShaderMod.framebuffers.getReflectionFBO();
-//        int refractionFBO = WaterShaderMod.framebuffers.getRefractionFBO();
-//        int worldFBO = WaterShaderMod.framebuffers.getWorldFrameBuffer();
-//        int minecraftFBO = client.getFramebuffer().fbo;
-//        int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
-//        int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
-//        int worldColorTexture = WaterShaderMod.framebuffers.getWorldColorBuffer();
-//
-//        float waterHeight = WaterShaderMod.clipPlane.getHeight();
+        if (WaterShaderMod.renderPass.getCurrentPass() == RenderPass.Pass.REFRACTION) {
+            GameRenderer gameRenderer = (GameRenderer) (Object) this;
+            WaterShaderMod.renderPass.nextRenderPass();
 
-        if (client.player != null) {
-//            Entity cameraclient = client.player;
+            gameRenderer.render(tickDelta, startTime, tick);
+            WaterShaderMod.renderPass.nextRenderPass();
 
-//            Vec3d position = cameraclient.getPos();
-//            float pitch = cameraclient.getPitch();
-
-//            double d = 2 * (position.getY() - waterHeight);
-//            cameraclient.setPitch(-pitch);
-//            cameraclient.setPos(position.x, position.y - d, position.z);
-
-            // Set clipping plane to cull everything below the water
-//            Vector4f plane = new Vector4f(0.0f, 1.0f, 0.0f, -waterHeight);
-//            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
-
-            // Render reflection texture
-            WaterShaderMod.renderPass.setDrawWater(false);
-            instance.renderWorld(tickDelta, limitTime, matrices);
-
-            if (Framebuffers.frameCount % 100 == 0) {
-//                Framebuffers.CopyFrameBufferTexture(width, height, reflectionFBO, 0);
-//                GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, reflectionFBO);
-//                System.out.println("Frame count: " + Framebuffers.frameCount);
-//                Framebuffers.SaveImage(width, height);
-//                GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-            }
-
-//            WaterShaderMod.framebuffers.bindReflectionFrameBuffer();
-//            WaterShaderMod.vanillaShaders.setupWaterShaderTexture(client, reflectionColorTexture);
-//            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, minecraftFBO);
-//
-//            // Restore pitch and position
-//            ((CameraMixin) camera).invokeSetPos(position.getX(), position.getY(), position.getZ());
-//            ((CameraMixin) camera).invokeMoveBy(0, d, 0);
-//            camera.setPos(position.getX(), position.getY(), position.getZ());
-//            camera.setPitch(pitch);
-
-//            cameraclient.setPos(position.x, position.y, position.z);
-//            cameraclient.setPitch(pitch);
-//
-//            // Set clipping plane to cull nothing
-//            plane = new Vector4f(0.0f, -1.0f, 0.0f, 512f);
-//            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, client.player, plane);
-
-            WaterShaderMod.renderPass.setDrawWater(true);
-            instance.renderWorld(tickDelta, limitTime, new MatrixStack());
-
-            Framebuffers.frameCount++;
+            WaterShaderMod.vanillaShaders.updateTimer(tickDelta);
         }
     }
 }

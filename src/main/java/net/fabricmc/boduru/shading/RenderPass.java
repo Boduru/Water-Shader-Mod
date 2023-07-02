@@ -6,24 +6,33 @@ package net.fabricmc.boduru.shading;
  */
 
 public class RenderPass {
-    private boolean drawWater = false;
+    public enum Pass {
+        REFLECTION,
+        REFRACTION,
+        WATER
+    }
 
-    private static RenderPass Instance;
+    private Pass currentPass = Pass.REFLECTION;
+
+    private static RenderPass instance;
 
     private RenderPass() {}
 
     public static RenderPass getInstance() {
-        if (Instance == null)
-            Instance = new RenderPass();
+        if (instance == null)
+            instance = new RenderPass();
 
-        return Instance;
+        return instance;
     }
 
-    public void setDrawWater(boolean drawWater) {
-        this.drawWater = drawWater;
+    /**
+     * Switches to the next render pass and loops back to the first pass when the last pass is reached.
+     */
+    public void nextRenderPass() {
+        currentPass = Pass.values()[(currentPass.ordinal() + 1) % Pass.values().length];
     }
 
-    public boolean doDrawWater() {
-        return this.drawWater;
+    public Pass getCurrentPass() {
+        return this.currentPass;
     }
 }

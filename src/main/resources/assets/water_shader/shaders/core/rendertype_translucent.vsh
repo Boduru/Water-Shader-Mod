@@ -12,25 +12,30 @@ in vec3 Normal;
 uniform sampler2D Sampler2;
 
 uniform mat4 ModelViewMat;
+uniform mat4 InverseViewMat;
 uniform mat4 ProjMat;
 uniform vec3 ChunkOffset;
 uniform int FogShape;
+uniform vec3 cameraPos;
 
 out float vertexDistance;
 out vec4 vertexColor;
 out vec2 texCoord0;
 out vec4 normal;
-
-out vec4 clipspace;
+out vec4 worldPos;
+out vec4 clipSpace;
+out vec3 toCameraVector;
 
 void main() {
     vec3 pos = Position + ChunkOffset;
-
+    worldPos = InverseViewMat * ModelViewMat * vec4(pos, 1.0);
     gl_Position = ProjMat * ModelViewMat * vec4(pos, 1.0);
-    clipspace = gl_Position;
+    clipSpace = gl_Position; // * 6.0;
 
     vertexDistance = fog_distance(ModelViewMat, pos, FogShape);
     vertexColor = Color * minecraft_sample_lightmap(Sampler2, UV2);
     texCoord0 = UV0;
     normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
+
+    toCameraVector = cameraPos - worldPos.xyz;
 }

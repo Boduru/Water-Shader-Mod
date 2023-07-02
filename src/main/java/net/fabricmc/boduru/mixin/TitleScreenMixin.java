@@ -9,6 +9,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin {
+    /**
+     * Initialize the mod and enable the clip plane to be used by OpenGL.
+     */
     @Inject(at = @At("HEAD"), method = "init()V")
     private void init(CallbackInfo info) {
         WaterShaderMod.InitContext();

@@ -6,13 +6,13 @@ package net.fabricmc.boduru.shading;
  */
 
 public class ClipPlane {
-    private float height;
+    private float y;
 
-    public void setHeight(float height) {
-        this.height = height;
+    public ClipPlane(float clipY) {
+        y = clipY;
     }
 
-    public float getHeight() {
-        return height;
+    public float getY() {
+        return y;
     }
 }
