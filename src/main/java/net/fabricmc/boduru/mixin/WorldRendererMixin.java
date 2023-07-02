@@ -19,7 +19,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -40,33 +39,22 @@ public class WorldRendererMixin {
                 plane = new Vector4f(0.0f, -1.0f, 0.0f, 256f);
             }
 
-//            float pitch = client.gameRenderer.getCamera().getPitch();
-//            float yaw = client.gameRenderer.getCamera().getYaw();
-//            float pitch = client.player.getPitch();
-//            float yaw = client.player.getYaw();
             float pitch = camera.getPitch();
             float yaw = camera.getYaw();
 
             double eyeY = camera.getPos().getY() - ((CameraMixin) camera).getCameraY();
-
             float sneakOffset = (float) (1.6198292 - ((CameraMixin) camera).getCameraY());
-
-//            System.out.println("eyeY: " + eyeY);
-//            System.out.println("EyePos" + client.player.getEyeY());
 
             Vector3f pos = new Vector3f((float) camera.getPos().getX(), (float) eyeY + sneakOffset, (float) camera.getPos().getZ());
             WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, pitch, yaw, pos, plane);
-//            WaterShaderMod.vanillaShaders.setupVanillaShadersClippingPlanes(client, gameRenderer.getCamera(), plane);
         }
     }
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gl/VertexBuffer;bind()V", shift = At.Shift.AFTER), method = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLorg/joml/Matrix4f;)V")
     public void setupWaterShaderParams(RenderLayer renderLayer, MatrixStack matrices, double cameraX, double cameraY, double cameraZ, Matrix4f positionMatrix, CallbackInfo ci) {
-        WorldRenderer worldRenderer = (WorldRenderer) (Object) this;
         MinecraftClient client = MinecraftClient.getInstance();
         int refractionColorTexture = WaterShaderMod.framebuffers.getRefractionTexture();
         int reflectionColorTexture = WaterShaderMod.framebuffers.getReflectionTexture();
-        int dudvmapTexture = WaterShaderMod.textureLoader.getTexture("dudvmap");
 
         GL11.glDisable(GL11.GL_BLEND);
 
@@ -77,8 +65,7 @@ public class WorldRendererMixin {
         ShaderProgram currentProgram = client.gameRenderer.getProgram("rendertype_translucent");
 
         if (program == currentProgram.getGlRef()) {
-//            Vec3d vec3d = worldRenderer.client.getSkyColor(client.gameRenderer.getCamera().getPos(), tickDelta);
-            WaterShaderMod.vanillaShaders.setupWaterShader(client, reflectionColorTexture, refractionColorTexture, dudvmapTexture);
+            WaterShaderMod.vanillaShaders.setupWaterShader(client, reflectionColorTexture, refractionColorTexture);
         }
     }
 

@@ -13,7 +13,6 @@ uniform sampler2D Sampler2;
 
 uniform mat4 ModelViewMat;
 uniform mat4 InverseViewMat;
-uniform mat4 CustomSneakingOffsetMat;
 uniform mat4 ProjMat;
 uniform vec3 ChunkOffset;
 uniform int FogShape;
@@ -24,16 +23,14 @@ out vec4 vertexColor;
 out vec2 texCoord0;
 out vec4 normal;
 out vec4 worldPos;
-out vec2 dudvMapUVCoords;
 out vec4 clipSpace;
 out vec3 toCameraVector;
 
 void main() {
     vec3 pos = Position + ChunkOffset;
-    worldPos = InverseViewMat * ModelViewMat * CustomSneakingOffsetMat * vec4(pos, 1.0);
+    worldPos = InverseViewMat * ModelViewMat * vec4(pos, 1.0);
     gl_Position = ProjMat * ModelViewMat * vec4(pos, 1.0);
-    clipSpace = gl_Position;
-    dudvMapUVCoords = vec2(pos.x / 2 + 0.5, pos.y / 2 + 0.5) * 6.0;
+    clipSpace = gl_Position; // * 6.0;
 
     vertexDistance = fog_distance(ModelViewMat, pos, FogShape);
     vertexColor = Color * minecraft_sample_lightmap(Sampler2, UV2);

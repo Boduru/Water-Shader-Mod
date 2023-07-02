@@ -2,7 +2,6 @@ package net.fabricmc.boduru.main;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.boduru.shading.*;
-import net.fabricmc.boduru.loading.TextureLoader;
 import net.minecraft.client.MinecraftClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +17,7 @@ public class WaterShaderMod implements ModInitializer {
     public static Framebuffers framebuffers;
     public static VanillaShaders vanillaShaders;
     public static CameraSav cameraSav;
-    public static TextureLoader textureLoader;
 
-    private static String dudvMapPath = "../src/main/resources/assets/water_shader/textures/dudvmap.png";
     private static boolean isInitialized = false;
 
     @Override
@@ -33,7 +30,6 @@ public class WaterShaderMod implements ModInitializer {
         renderPass = RenderPass.getInstance();
         vanillaShaders = VanillaShaders.getInstance();
         cameraSav = new CameraSav();
-        textureLoader = new TextureLoader();
 
         // Initialize clip plane
         clipPlane.setHeight(61.36f);
@@ -54,10 +50,6 @@ public class WaterShaderMod implements ModInitializer {
         framebuffers.setFramebuffersSize(width, height);
         framebuffers.initializeReflectionFrameBuffer(width, height);
         framebuffers.initializeRefractionFrameBuffer(width, height);
-
-        // Load DUDV Map
-        long r = textureLoader.loadTexture(dudvMapPath, "dudvmap");
-        System.out.println("DUDV Map Texture ID: " + r);
 
         // Switch to initialized state
         isInitialized = true;
