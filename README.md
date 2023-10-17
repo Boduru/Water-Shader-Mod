@@ -15,8 +15,8 @@
 - [License](#license)
 
 ## Introduction
-Water Shader Mod is a Minecraft mod that adds water reflection and refraction to the game to make water look more realistic.
-The Water Shader Mod is highly inspired by the [Water Shader Mod](https://minecraft.fr/1-1-water-shaders/) for Minecraft 1.1 by Necrowizzard.
+The Water Shader Mod is a Minecraft mod that adds water reflection and refraction to the game to make the water look more realistic.
+This mod is highly inspired by the [Water Shader Mod](https://minecraft.fr/1-1-water-shaders/) for Minecraft 1.1 by Necrowizzard.
 However, it does not borrow any code from the original mod.
 
 ## Features
@@ -28,10 +28,10 @@ However, it does not borrow any code from the original mod.
 ## Why Fabric For Shading?
 Most of Minecraft shaderpacks are built upon the Optifine pipeline to take advantage of the framerate boost and its features to write GLSL code.
 However, Optifine does not provide any API to modify JAVA code and customize the way Minecraft renders the world.
-In order to address this issue, we can use the Fabric API to hook into the rendering pipeline and modify the way Minecraft renders the world.
+In order to address this issue, we can use the Fabric API to hook into the rendering pipeline and modify Minecraft's rendering pipeline.
 
 ## How Does It Work?
-The mod uses planar reflection technique to render the reflection of the world on the water surface. The reflection is then blended with the water color to create the final water effect.
+The mod uses the planar reflection technique to render the reflection of the world on the water surface. The reflection is then blended with the water color to create the final water effect.
 To know more about the planar reflection technique, please take a look at ThinMatrix's tutorial videos [OpenGL Water Shader](https://www.youtube.com/watch?v=HusvGeEDU_U&ab_channel=ThinMatrix) which helped to create this mod.
 Most of Minecraft shaders use the [screen-space reflection](https://en.wikipedia.org/wiki/Screen_space_reflection) technique to render reflections on the water surface.
 While this technique is fast and independent of world geometry, it has two major drawbacks:
@@ -44,7 +44,7 @@ Planar reflection, on the other hand, does not suffer from this issue, and it re
 This method requires you to define a plane as reference to calculate reflections on some water surface. This plane is defined by the water height position and the water normal. 
 However, planar reflection allows only one water plane height coordinate to be used for the whole world. This means that all water blocks should be at the same height to show accurate reflection.
 Minecraft's worlds can possess water at different heights, thus reflections would not render properly everywhere, so only water at sea level (Y=62) benefits from reflections.
-Water blocks located at different heights are rendered with a simple water shader that uses refraction, distortions and fresnel effect.
+Water blocks located at different heights are rendered with a simple water shader that uses refraction and distortions.
 
 ## Setup
 To set up the environment:
