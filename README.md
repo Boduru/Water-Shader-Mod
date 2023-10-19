@@ -49,7 +49,7 @@ Water blocks located at different heights are rendered with a simple water shade
 ## Setup
 To set up the environment:
 - Clone the repository.
-```git clone https://github.com/JimPavan/Water-Shader-Mod.git```
+```git clone https://github.com/Boduru/Water-Shader-Mod.git```
 - Open the project in IntelliJ IDEA.
 - Run the gradle task `genSources` to generate the sources.
 - Run the gradle task `runClient` to run the mod.
